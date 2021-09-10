@@ -1,0 +1,271 @@
+FORMAT: 1A
+HOST: http:/api.tap.shmn7iii.net
+
+# Tap API Document
+**REST API for Tap!**
+
+[**Tap!**  - Rakuchin NFT issuing service -](https://tap.shmn7iii.net)
+
+[**Tap-Team/tap-api** - GitHub](https://github.com/Tap-Team/tap-api)
+
+## Usage
+REST APIのイメージで作ってるからその感じで。
+
+::: warning
+### Caution
+チームメンバー向けに書いてるだけだよ公開する意図はないよ
+:::
+
+# Group TapUser
+### 一覧 [GET /users]
+ユーザーの一覧を表示する。
+
+::: note
+## Note
+使い所ありませんデバッグ用です。
+:::
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#index",
+            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+        }
+        ```
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+        
+        
+### 登録 [POST /users]
+新規ユーザを登録する
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "KOKO_NI_UID_WO_IRERU_YO",
+            "message": "Success! users#create",
+            "data": "No contents"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#create",
+            "data": "No contents"
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+
+### 更新 [PUT /users ]
+ユーザーを更新する。
+
+::: note
+## Note
+使い所ありませんデバッグ用です。
+:::
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "KOKO_NI_UID_WO_IRERU_YO",
+            "wallet_id": "KOKO_HA_WALLET_ID_WO_IRERU_YO"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#update",
+            "data": "No contents"
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+
+### 削除 [DELETE /users/{uid} ]
+ユーザーを削除する
+
++ Parameters
+    + uid: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Firabase Auth's uid.
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#delete",
+            "data": "No contents"
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+
+# Group TapToken
+トークンに関するリソーす
+
+### 一覧 [GET /tokens/{num}]
+トークンの一覧を取得する。URL内の `{num}` で指定した量だけ直近のトークンを取得することも可能。
+
++ Parameters
+    + num: `5` (optional, int) - 取得トークン量
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! tokens#index",
+            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+        }
+        ```
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+### 発行 [POST /tokens]
+トークンを発行する。
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "KOKO_NI_UID_WO_IRERU_YO"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! tokens#create",
+            "data": {
+            	"token_id": "TOKEN_NO_ID_GA_KAETTE_KURU_YO"
+            }
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+### 移転 [PUT /tokens]
+トークンを移転する。
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "sender_uid": "KOKO_NI_UID_WO_IRERU_YO",
+            "receive_uid": "KOKO_NI_UID_WO_IRERU_YO",
+            "token_id": "KOKO_HA_TOKEN_ID_GA_HAIRU_YO"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! tokens#update",
+            "data": {
+            	"token_id": "TOKEN_NO_ID_GA_KAETTE_KURU_YO",
+            	"txid": "KOKO_NI_TRANSACTION_ID_GA_HAIRU_YO"
+            }
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+### 焼却 [DELETE /tokens{token_id}]
+トークンを焼却する。
+
++ Parameters
+    + token_id: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Token's id
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#delete",
+            "data": {
+            	"token_id": "TOKEN_NO_ID_GA_KAETTE_KURU_YO",
+            	"txid": "KOKO_NI_TRANSACTION_ID_GA_HAIRU_YO"
+            }
+        }
+        ```
+        
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
