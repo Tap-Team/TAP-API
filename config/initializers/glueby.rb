@@ -2,7 +2,7 @@
 Tapyrus.chain_params = :dev
 Glueby.configure do |config|
   config.wallet_adapter = :activerecord
-  config.rpc_config = { schema: 'http', host: '127.0.0.1', port: 12381, user: 'user', password: 'pass' }
+  config.rpc_config = { schema: 'http', host: '127.0.0.1', port: 12381, user: 'rpcuser', password: 'rpcpassword' }
 end
 
 # Uncomment next line when using timestamp feature
