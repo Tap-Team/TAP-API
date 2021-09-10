@@ -1,0 +1,2 @@
+class TapToken < ApplicationRecord
+end
