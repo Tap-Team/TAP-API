@@ -60,5 +60,4 @@ Rails.application.configure do
 
   # host whitelist
   config.hosts << "api.tap.shmn7iii.net"
-
 end

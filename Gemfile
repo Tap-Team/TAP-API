@@ -42,13 +42,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 
 
-# ==================================================
 
-# gluey
+
+
+# chaintope/glueby
 gem 'glueby'
-
-# Firebase Auth
-gem 'google-apis-identitytoolkit_v3'
-
-# Firebase Firestore
-gem "google-cloud-firestore"

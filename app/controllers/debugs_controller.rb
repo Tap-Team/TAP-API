@@ -1,15 +1,13 @@
-require 'google/cloud/firestore'
-
 class DebugsController < ApplicationController
 
-    def firestore
-        service_account = "./SERVICE_ACCOUNT.json"
-        client = Google::Cloud::Firestore.new(project_id: "tap-f4f38" ,credentials: service_account)
-        doc_ref = client.doc("users/testfromapi")
-        doc_snap = doc_ref.get
-        data =doc_snap[:email]
-        response_success('debugs','firebasestore',data)
-    end
+    # def firestore
+    #     service_account = "./SERVICE_ACCOUNT.json"
+    #     client = Google::Cloud::Firestore.new(project_id: "tap-f4f38" ,credentials: service_account)
+    #     doc_ref = client.doc("users/testfromapi")
+    #     doc_snap = doc_ref.get
+    #     data =doc_snap[:email]
+    #     response_success('debugs','firebasestore',data)
+    # end
 
 
     def createwallet

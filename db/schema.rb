@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_03_031725) do
+ActiveRecord::Schema.define(version: 2021_09_10_043128) do
 
   create_table "glueby_keys", force: :cascade do |t|
     t.string "private_key"
@@ -27,28 +27,12 @@ ActiveRecord::Schema.define(version: 2021_09_03_031725) do
     t.index ["wallet_id"], name: "index_glueby_keys_on_wallet_id"
   end
 
-  create_table "glueby_reissuable_tokens", force: :cascade do |t|
-    t.string "color_id", null: false
-    t.string "script_pubkey", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["color_id"], name: "index_glueby_reissuable_tokens_on_color_id", unique: true
-  end
-
   create_table "glueby_system_informations", force: :cascade do |t|
     t.string "info_key"
     t.string "info_value"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["info_key"], name: "index_glueby_system_informations_on_info_key", unique: true
-  end
-
-  create_table "glueby_timestamps", force: :cascade do |t|
-    t.string "txid"
-    t.integer "status"
-    t.string "content_hash"
-    t.string "prefix"
-    t.string "wallet_id"
   end
 
   create_table "glueby_utxos", force: :cascade do |t|
@@ -71,6 +55,20 @@ ActiveRecord::Schema.define(version: 2021_09_03_031725) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["wallet_id"], name: "index_glueby_wallets_on_wallet_id", unique: true
+  end
+
+  create_table "tap_tokens", force: :cascade do |t|
+    t.string "token_id"
+    t.string "data"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "tap_users", force: :cascade do |t|
+    t.string "uid"
+    t.string "wallet_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
 end
