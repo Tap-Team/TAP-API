@@ -67,6 +67,10 @@ GEM
     concurrent-ruby (1.1.9)
     crass (1.0.6)
     daemon-spawn (0.4.2)
+    dotenv (2.7.6)
+    dotenv-rails (2.7.6)
+      dotenv (= 2.7.6)
+      railties (>= 3.2)
     ecdsa (1.2.0)
     erubi (1.10.0)
     eventmachine (1.2.7)
@@ -175,6 +179,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap (>= 1.4.4)
   byebug
+  dotenv-rails
   glueby
   listen (~> 3.3)
   puma (~> 5.0)

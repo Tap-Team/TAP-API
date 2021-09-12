@@ -50,3 +50,6 @@ gem 'glueby'
 
 # puma-daemon
 gem 'puma-daemon', require: false
+
+# dot-env
+gem 'dotenv-rails'

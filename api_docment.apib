@@ -43,8 +43,8 @@ REST APIのイメージで作ってるからその感じで。
             "data": "(error message)"
         }
         ```
-        
-        
+
+
 ### 登録 [POST /users]
 新規ユーザを登録する
 
@@ -67,7 +67,7 @@ REST APIのイメージで作ってるからその感じで。
             "data": "No contents"
         }
         ```
-        
+
 + Response 500
     + Body
         ```
@@ -79,13 +79,17 @@ REST APIのイメージで作ってるからその感じで。
         ```
 
 
-### 更新 [PUT /users ]
+### 更新 [PUT /users/{uid} ]
 ユーザーを更新する。
 
 ::: note
 ## Note
 使い所ありませんデバッグ用です。
 :::
+
++ Parameters
+    + uid: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Firabase Auth's uid.
+
 
 + Request (application/json)
 	+ Body
@@ -105,7 +109,7 @@ REST APIのイメージで作ってるからその感じで。
             "data": "No contents"
         }
         ```
-        
+
 + Response 500
     + Body
         ```
@@ -132,7 +136,7 @@ REST APIのイメージで作ってるからその感じで。
             "data": "No contents"
         }
         ```
-        
+
 + Response 500
     + Body
         ```
@@ -194,7 +198,7 @@ REST APIのイメージで作ってるからその感じで。
             }
         }
         ```
-        
+
 + Response 500
     + Body
         ```
@@ -205,16 +209,18 @@ REST APIのイメージで作ってるからその感じで。
         }
         ```
 
-### 移転 [PUT /tokens]
+### 移転 [PUT /tokens/{token_id}]
 トークンを移転する。
+
++ Parameters
+    + token_id: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Token's id
 
 + Request (application/json)
 	+ Body
         ```
         {
             "sender_uid": "KOKO_NI_UID_WO_IRERU_YO",
-            "receive_uid": "KOKO_NI_UID_WO_IRERU_YO",
-            "token_id": "KOKO_HA_TOKEN_ID_GA_HAIRU_YO"
+            "receive_uid": "KOKO_NI_UID_WO_IRERU_YO"
         }
         ```
 
@@ -230,7 +236,7 @@ REST APIのイメージで作ってるからその感じで。
             }
         }
         ```
-        
+
 + Response 500
     + Body
         ```
@@ -241,7 +247,7 @@ REST APIのイメージで作ってるからその感じで。
         }
         ```
 
-### 焼却 [DELETE /tokens{token_id}]
+### 焼却 [DELETE /tokens/{token_id}]
 トークンを焼却する。
 
 + Parameters
@@ -259,7 +265,7 @@ REST APIのイメージで作ってるからその感じで。
             }
         }
         ```
-        
+
 + Response 500
     + Body
         ```

@@ -92,3 +92,4 @@ build-iPhoneSimulator/
 
 .DS_Store
 SERVICE_ACCOUNT.json
+.env

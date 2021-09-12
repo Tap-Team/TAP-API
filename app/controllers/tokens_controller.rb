@@ -1,11 +1,13 @@
 class TokensController < ApplicationController
 
+    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
+
     # get list of NFT
         # TOOD:このままだとエグい量返されて大変だから数指定できるようにしたいね。
     def index
         begin
             taptokens = TapToken.all
-            response_success('users','create',taptokens)
+            response_success('users','index',taptokens)
         rescue => error
             response_internal_server_error(error)
         end
@@ -24,13 +26,23 @@ class TokensController < ApplicationController
             wallet = Glueby::Wallet.load(wallet_id)
             tokens = Glueby::Contract::Token.issue!(issuer: wallet, token_type: Tapyrus::Color::TokenTypes::NFT, amount: 1)
             token_id = tokens[0].color_id.payload.bth
+            token_id = 'c3' + token_id
+
+            # generate block
+            generate
 
             # save to db
-            taptoken = TapToken.create(token_id:token_id, data:data)
+            taptoken = TapToken.create(token_id: token_id, data:data)
             taptoken.save
 
             # response
             response_success('tokens','create',"{ token_id: #{token_id} }")
+
+
+        # TPC不足をレスキューするよ
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            pay2user(wallet_id, 10_000)
+            retry
 
         rescue => error
             response_internal_server_error(error)
@@ -41,12 +53,12 @@ class TokensController < ApplicationController
     def update
         sender_uid = params[:sender_uid]
         receive_uid = params[:receive_uid]
-        token_id = params[:token_id]
+        token_id = params[:id]
 
         begin
             # read from db
-            sender_wallet_id = get_wallet_id_from_uid(sender_uid)
-            receiver_wallet_id = get_wallet_id_from_uid(receive_uid)
+            sender_wallet_id = TapUser.find_by(uid: sender_uid).wallet_id
+            receiver_wallet_id = TapUser.find_by(uid: receive_uid).wallet_id
 
             # load wallet
             sender = Glueby::Wallet.load(sender_wallet_id)
@@ -60,8 +72,17 @@ class TokensController < ApplicationController
 
             (color_id_result, tx) = token.transfer!(sender: sender, receiver_address: address, amount: 1)
 
+            # generate block
+            generate
+
             # response
             response_success('tokens','update',"{ token_id: #{token_id}, txid: #{tx.txid} }")
+
+
+        # TPC不足をレスキューするよ
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            pay2user(sender_wallet_id, 10_000)
+            retry
 
         rescue => error
             response_internal_server_error(error)
@@ -71,11 +92,11 @@ class TokensController < ApplicationController
     # burn NFT
     def destroy
         uid = params[:uid]
-        token_id = params[:token_id]
+        token_id = params[:id]
 
         begin
             #read from db
-            wallet_id = get_wallet_id_from_uid(uid)
+            wallet_id = TapUser.find_by(uid: uid).wallet_id
 
             # load wallet
             wallet = Glueby::Wallet.load(wallet_id)
@@ -86,12 +107,21 @@ class TokensController < ApplicationController
             token = Glueby::Contract::Token.new(color_id: color_id)
             tx = token.burn!(sender: wallet, amount: 1)
 
+            # generate block
+            generate
+
             # destroy from db
-            taptoken = TapToken.find_by(uid: uid)
+            taptoken = TapToken.find_by(token_id: token_id)
             taptoken.destroy
 
             # response
             response_success('tokens','destroy',"{ token_id: #{token_id}, txid: #{tx.txid} }")
+
+
+        # TPC不足をレスキューするよ
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            pay2user(wallet_id, 10_000)
+            retry
 
         rescue => error
             response_internal_server_error(error)
@@ -100,7 +130,19 @@ class TokensController < ApplicationController
 
 
 
-    def get_wallet_id_from_uid(uid)
-        return TapUser.find_by(uid: uid).wallet_id
+    def pay2user(wallet_id, ammount)
+        sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        receiver = Glueby::Wallet.load(wallet_id)
+        address = receiver.internal_wallet.receive_address
+        tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
+    end
+
+    def generate
+        wallet = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        receive_address = wallet.internal_wallet.receive_address
+        count = 1
+        authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
+        block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
+        `rails glueby:contract:block_syncer:start`
     end
 end
