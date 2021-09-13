@@ -6,3 +6,7 @@
 #     https: false
 #   )
 # end
+
+ActionController::Renderers.add :pretty_json do |obj, options|
+    _render_with_renderer_json JSON.pretty_generate(obj.as_json(options)), options
+end
