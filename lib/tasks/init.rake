@@ -1,6 +1,8 @@
 namespace :init do
     desc "walletを生成する"
     task :create => :environment do |task, args|
+
+        # wallet
         wallet = Glueby::Wallet.create
         address = wallet.internal_wallet.receive_address
 
@@ -20,6 +22,7 @@ namespace :init do
         tapuser = TapUser.create(uid: 'init', wallet_id: wallet.id)
         tapuser.save
 
+        # output
         puts "wallet.id: #{wallet.id}"
         puts "address: #{address}"
         puts "wallet.balances: #{wallet.balances}"

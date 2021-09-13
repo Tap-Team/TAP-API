@@ -5,7 +5,7 @@ class UsersController < ApplicationController
     def index
         begin
             tapusers = TapUser.all
-            response_success('users','create',tapusers)
+            response_success('users','index',tapusers)
         rescue => error
             response_internal_server_error(error)
         end
