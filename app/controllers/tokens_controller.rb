@@ -131,10 +131,15 @@ class TokensController < ApplicationController
 
 
     def pay2user(wallet_id, ammount)
-        sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
-        receiver = Glueby::Wallet.load(wallet_id)
-        address = receiver.internal_wallet.receive_address
-        tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
+        begin
+            sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+            receiver = Glueby::Wallet.load(wallet_id)
+            address = receiver.internal_wallet.receive_address
+            tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            generate
+            retry
+        end
     end
 
     def generate
