@@ -21,7 +21,7 @@ REST APIのイメージで作ってるからその感じで。
 :::
 
 # Group TapUser
-### 一覧 [GET /users]
+### ユーザー一覧 [GET /users]
 ユーザーの一覧を表示する。
 
 ::: note
@@ -35,6 +35,31 @@ REST APIのイメージで作ってるからその感じで。
         {
             "status": "200",
             "message": "Success! users#index",
+            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+        }
+        ```
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+        
+### トークン一覧（ユーザー毎） [GET /users/{uid}]
+ユーザーのトークン一覧を表示する。
+
++ Parameters
+    + uid: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Firabase Auth's uid.
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#index/uid",
             "data": "IIKANNZI_NI_KAETTE_KURUYO"
         }
         ```
