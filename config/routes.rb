@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   get 'debugs/firestore', to: 'debugs#firestore'
 
+  post 'debugs/uploadimage', to: 'debugs#uploadimage'
+
   # users
   resources :users, only: [:index, :create, :update, :destroy]
 
