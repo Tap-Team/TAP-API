@@ -3,11 +3,25 @@ class UsersController < ApplicationController
     # get list of User
         # NOTE: いつ使うんこれ
     def index
-        begin
-            tapusers = TapUser.all
-            response_success('users','index',tapusers)
-        rescue => error
-            response_internal_server_error(error)
+        # 全表示
+        if params[:uid].blank?
+            begin
+                tapusers = TapUser.all
+                response_success('users','index',tapusers)
+            rescue => error
+                response_internal_server_error(error)
+            end
+        else
+            begin
+                uid = params[:uid]
+                wallet_id = TapUser.find_by(uid: uid).wallet_id
+                wallet = Glueby::Wallet.load(wallet_id)
+                balances = wallet.balances
+                token_ids = balances.keys.reject(&:blank?)
+                response_success("users", "index/#{uid}", token_ids)
+            rescue => error
+                response_internal_server_error(error)
+            end
         end
     end
 

@@ -12,9 +12,15 @@ Rails.application.routes.draw do
   get 'debugs/firestore', to: 'debugs#firestore'
 
   # users
-  resources :users, only: [:index, :create, :update, :destroy]
+  get 'users', to: 'users#index'
+  post 'users', to: 'users#create'
+  put 'users', to: 'users#update'
+  delete 'users', to: 'users#destroy'
 
   # tokens
-  resources :tokens, only: [:index, :create, :update, :destroy]
+  get 'tokens', to: 'tokens#index'
+  post 'tokens', to: 'tokens#create'
+  put 'tokens', to: 'tokens#update'
+  delete 'tokens', to: 'tokens#destroy'
 
 end
