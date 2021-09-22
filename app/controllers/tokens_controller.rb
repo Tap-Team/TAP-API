@@ -25,7 +25,7 @@ class TokensController < ApplicationController
     # issue NFT
     def create
         uid = params[:uid]
-        uri = params[:uri]
+        uri = params[:data]
 
         begin
             # read from db
