@@ -48,9 +48,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # chaintope/glueby
 gem 'glueby'
 
-# puma-daemon
-gem 'puma-daemon', require: false
-
 # dot-env
 gem 'dotenv-rails'
 
