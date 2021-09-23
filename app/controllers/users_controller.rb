@@ -8,15 +8,21 @@ class UsersController < ApplicationController
             num = params[:num]
             tapusers = TapUser.last(num)
         end
+
         response_success('tokens','index',tapusers)
     end
 
 
     # get info of each user
     def info
-        begin
-            uid = params[:uid]
+        uid = params[:uid]
 
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
+        begin
             tapuser = TapUser.find_by(uid:uid)
             wallet_id = tapuser.wallet_id
             created_at = tapuser.created_at
@@ -46,7 +52,7 @@ class UsersController < ApplicationController
         uid = params[:uid]
 
         if TapUser.find_by(uid:uid)
-            response_bad_request("uid: \"#{uid}\" is already registerd.")
+            response_bad_request("uid: #{uid} - already registerd.")
             return
         end
 
@@ -72,6 +78,11 @@ class UsersController < ApplicationController
         uid = params[:uid]
         wallet_id = params[:wallet_id]
 
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
         begin
             # search from db
             tapuser = TapUser.find_by(uid: uid)
@@ -91,6 +102,11 @@ class UsersController < ApplicationController
         # NOTE: NOT DELETE WALLET
     def destroy
         uid = params[:uid]
+
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
 
         begin
             # search from db

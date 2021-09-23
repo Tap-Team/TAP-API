@@ -21,15 +21,23 @@ class TokensController < ApplicationController
             num = params[:num]
             taptokens = TapToken.last(num)
         end
-        response_success('tokens','index',taptokens)
+
+        response_success('tokens', 'index', taptokens)
     end
 
 
     # get info of each token
     def info
         token_id = params[:token_id]
+
+        unless TapToken.find_by(token_id:token_id)
+            response_bad_request("token_id: #{token_id} - not found.")
+            return
+        end
+
         taptoken = TapToken.find_by(token_id:token_id)
-        response_success('tokens','info',taptoken)
+
+        response_success('tokens', 'info', taptoken)
     end
 
 
@@ -37,6 +45,13 @@ class TokensController < ApplicationController
     def create
         uid = params[:uid]
         uri = params[:data]
+
+
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
 
         begin
             # read from db
@@ -71,7 +86,8 @@ class TokensController < ApplicationController
             taptoken.save
 
             # response
-            response_success('tokens','create',"{ \"token_id\": \"#{token_id}\" }")
+            response = { token_id: token_id }
+            response_success('tokens', 'create', response)
 
 
         # TPC不足をレスキューするよ
@@ -88,13 +104,30 @@ class TokensController < ApplicationController
     # transfer token
     def update
         sender_uid = params[:sender_uid]
-        receive_uid = params[:receive_uid]
+        receiver_uid = params[:receiver_uid]
         token_id = params[:id]
+
+
+        unless TapUser.find_by(uid:sender_uid)
+            response_bad_request("uid: #{sender_uid} - not found.")
+            return
+        end
+
+        unless TapUser.find_by(uid:receiver_uid)
+            response_bad_request("uid: #{receiver_uid} - not found.")
+            return
+        end
+
+        unless TapToken.find_by(token_id:token_id)
+            response_bad_request("token_id: #{token_id} - not found.")
+            return
+        end
+
 
         begin
             # read from db
             sender_wallet_id = TapUser.find_by(uid: sender_uid).wallet_id
-            receiver_wallet_id = TapUser.find_by(uid: receive_uid).wallet_id
+            receiver_wallet_id = TapUser.find_by(uid: receiver_uid).wallet_id
 
             # load wallet
             sender = Glueby::Wallet.load(sender_wallet_id)
@@ -112,7 +145,8 @@ class TokensController < ApplicationController
             generate
 
             # response
-            response_success('tokens','update',"{ \"token_id\": \"#{token_id}\", \"txid\": \"#{tx.txid}\" }")
+            response = { token_id: token_id, txid: tx.txid}
+            response_success('tokens', 'update', response)
 
 
         # TPC不足をレスキューするよ
@@ -130,6 +164,18 @@ class TokensController < ApplicationController
     def destroy
         uid = params[:uid]
         token_id = params[:id]
+
+
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
+        unless TapToken.find_by(token_id:token_id)
+            response_bad_request("token_id: #{token_id} - not found.")
+            return
+        end
+
 
         begin
             #read from db
@@ -164,7 +210,8 @@ class TokensController < ApplicationController
             taptoken.destroy
 
             # response
-            response_success('tokens','destroy',"{ \"token_id\": \"#{token_id}\", \"txid\": \"#{tx.txid}\" }")
+            response = { token_id: token_id, txid: tx.txid }
+            response_success('tokens', 'destroy', response)
 
 
         # TPC不足をレスキューするよ
