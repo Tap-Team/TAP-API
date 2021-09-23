@@ -57,15 +57,13 @@ ActiveRecord::Schema.define(version: 2021_09_10_043128) do
     t.index ["wallet_id"], name: "index_glueby_wallets_on_wallet_id", unique: true
   end
 
-  create_table "tap_tokens", force: :cascade do |t|
-    t.string "token_id"
+  create_table "tap_tokens", primary_key: "token_id", id: :string, force: :cascade do |t|
     t.string "data"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "tap_users", force: :cascade do |t|
-    t.string "uid"
+  create_table "tap_users", primary_key: "uid", id: :string, force: :cascade do |t|
     t.string "wallet_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
