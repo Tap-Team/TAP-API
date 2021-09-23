@@ -16,15 +16,15 @@ Rails.application.routes.draw do
   # users
   get 'users/(:num)', to: 'users#index'
   get 'users/info/:uid', to: 'users#info'
-  post 'users', to: 'users#create'
+  post 'users/:uid', to: 'users#create'
   put 'users/:uid', to: 'users#update'
   delete 'users/:uid', to: 'users#destroy'
 
   # tokens
   get 'tokens/(:num)', to: 'tokens#index'
   get 'tokens/info/:token_id', to: 'tokens#info'
-  post 'tokens', to: 'tokens#create'
-  put 'tokens/:uid', to: 'tokens#update'
-  delete 'tokens/:uid', to: 'tokens#destroy'
+  post 'tokens/:token_id', to: 'tokens#create'
+  put 'tokens/:token_id', to: 'tokens#update'
+  delete 'tokens/:token_id', to: 'tokens#destroy'
 
 end
