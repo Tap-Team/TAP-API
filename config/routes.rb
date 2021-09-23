@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   get 'debugs/firestore', to: 'debugs#firestore'
 
+  post 'debugs/uploadimage', to: 'debugs#uploadimage'
+
   # users
   get 'users/(:uid)', to: 'users#index'
   post 'users', to: 'users#create'

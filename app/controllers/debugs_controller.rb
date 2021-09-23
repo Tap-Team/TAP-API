@@ -9,6 +9,75 @@ class DebugsController < ApplicationController
     #     response_success('debugs','firebasestore',data)
     # end
 
+    def uploadimage
+        uri = params[:uri]
+        filename = uri.split('/')[-1]
+        extension = filename.split('.')[-1]
+
+        require "google/cloud/storage"
+
+        storage = Google::Cloud::Storage.new(
+            project_id: "tap-f4f38",
+            credentials: "./SERVICE_ACCOUNT.json"
+        )
+
+        bucket = storage.bucket "tap-f4f38.appspot.com"
+        file = bucket.file "tmp/#{filename}"
+
+        unless file.blank?
+            if file.exists?
+                token_id = "token_id"
+                renamed_file = file.copy "#{token_id}.#{extension}"
+                file.delete
+                response_success('debugs', 'uploadimage', "ok")
+            end
+        else
+            response_bad_request("#{uri} not found.")
+        end
+
+
+        # uri = URI.parse(params[:data])
+
+        # if uri.scheme == "data" then
+        #     opaque = uri.opaque
+        #     data = opaque[opaque.index(",") + 1, opaque.size]
+        #     image = Base64.decode64(data)
+
+        #     opaque = uri.opaque
+        #     mime_type = opaque[0, opaque.index(";")]
+        #     extension = ''
+        #     case mime_type
+        #     when "image/png" then
+        #         extension = ".png"
+        #     when "image/jpeg" then
+        #         extension = ".jpg"
+        #     else
+        #         response_bad_request("Unsupport Content-Type")
+        #     end
+
+        #     filename = Time.now.strftime("%Y%m%d-%H%M%S") + extension
+
+        #     File.open("./cash/images/#{filename}", 'wb') do|f|
+        #         f.write(image)
+        #     end
+
+        #     require "google/cloud/storage"
+
+        #     storage = Google::Cloud::Storage.new(
+        #         project_id: "tap-f4f38",
+        #         credentials: "./SERVICE_ACCOUNT.json"
+        #     )
+
+        #     bucket = storage.bucket "tap-f4f38.appspot.com"
+        #     bucket.create_file "./cash/images/#{filename}", "images/#{filename}"
+
+        #     response_success('debugs','uploadimage',"#{filename}")
+
+        # else
+        #     response_bad_request("Unsupport Content-Type")
+        # end
+    end
+
 
     def createwallet
         wallet = Glueby::Wallet.create

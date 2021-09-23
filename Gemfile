@@ -53,3 +53,6 @@ gem 'puma-daemon', require: false
 
 # dot-env
 gem 'dotenv-rails'
+
+# google cloud storage
+gem 'google-cloud-storage'

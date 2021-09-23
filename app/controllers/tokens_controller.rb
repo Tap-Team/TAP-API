@@ -1,6 +1,15 @@
+require "google/cloud/storage"
+
 class TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
+
+    storage = Google::Cloud::Storage.new(
+        project_id: "tap-f4f38",
+        credentials: "./SERVICE_ACCOUNT.json"
+    )
+
+    @@bucket = storage.bucket "tap-f4f38.appspot.com"
 
     # get list of NFT
         # TOOD:このままだとエグい量返されて大変だから数指定できるようにしたいね。
@@ -17,7 +26,7 @@ class TokensController < ApplicationController
     # issue NFT
     def create
         uid = params[:uid]
-        data = params[:data]
+        uri = params[:data]
 
         begin
             # read from db
@@ -32,8 +41,23 @@ class TokensController < ApplicationController
             # generate block
             generate
 
+            # Firebase Storage
+            filename = uri.split('/')[-1]
+            extension = filename.split('.')[-1]
+
+            file = @@bucket.file "tmp/#{filename}"
+
+            unless file.blank?
+                if file.exists?
+                    renamed_file = file.copy "#{token_id}.#{extension}"
+                    file.delete
+                end
+            else
+                response_bad_request("#{uri} not found.")
+            end
+
             # save to db
-            taptoken = TapToken.create(token_id: token_id, data:data)
+            taptoken = TapToken.create(token_id: token_id, data:"gs://tap-f4f38.appspot.com/#{token_id}.#{extension}")
             taptoken.save
 
             # response
@@ -112,6 +136,18 @@ class TokensController < ApplicationController
 
             # generate block
             generate
+
+            # Firebase Storage
+                # TODO:デバッグしてません
+            filename = TapToken.find_by(token_id: token_id).data.split('/')[-1]
+            file = @@bucket.file filename
+            unless file.blank?
+                if file.exists?
+                    file.delete
+                end
+            else
+                response_bad_request("#{uri} not found.")
+            end
 
             # destroy from db
             taptoken = TapToken.find_by(token_id: token_id)
