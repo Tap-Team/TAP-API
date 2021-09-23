@@ -14,7 +14,8 @@ Rails.application.routes.draw do
   post 'debugs/uploadimage', to: 'debugs#uploadimage'
 
   # users
-  get 'users/(:uid)', to: 'users#index'
+  get 'users/(:num)', to: 'users#index'
+  get 'users/info/:uid', to: 'users#info'
   post 'users', to: 'users#create'
   put 'users/:uid', to: 'users#update'
   delete 'users/:uid', to: 'users#destroy'

@@ -21,13 +21,17 @@ REST APIのイメージで作ってるからその感じで。
 :::
 
 # Group TapUser
-### ユーザー一覧 [GET /users]
-ユーザーの一覧を表示する。
+### ユーザー一覧 [GET /users/{num}]
+ユーザーの一覧を表示する。 `{num}` を指定することで任意の数だけ直近のユーザーを取得可能。
 
 ::: note
 ## Note
 たぶん使い所ありませんデバッグ用です。
 :::
+
++ Parameters
+    + num: `5` (optional, int) - 取得ユーザー数
+
 
 + Response 200
     + Body
@@ -48,8 +52,8 @@ REST APIのイメージで作ってるからその感じで。
         }
         ```
 
-### トークン一覧（ユーザー毎） [GET /users/{uid}]
-ユーザーのトークン一覧を表示する。
+### トークン一覧（ユーザー毎） [GET /users/info/{uid}]
+ユーザーの情報とトークン一覧を表示する。
 
 + Parameters
     + uid: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Firabase Auth's uid.
