@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   # tokens
   get 'tokens/(:num)', to: 'tokens#index'
+  get 'tokens/info/:token_id', to: 'tokens#info'
   post 'tokens', to: 'tokens#create'
   put 'tokens/:uid', to: 'tokens#update'
   delete 'tokens/:uid', to: 'tokens#destroy'

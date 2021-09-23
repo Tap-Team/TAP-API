@@ -12,11 +12,25 @@ class TokensController < ApplicationController
     @@bucket = storage.bucket "tap-f4f38.appspot.com"
 
     # get list of NFT
-        # TOOD:このままだとエグい量返されて大変だから数指定できるようにしたいね。
+        # TODO:このままだとエグい量返されて大変だから数指定できるようにしたいね。
     def index
-        begin
+
+        if params[:num].blank?
             taptokens = TapToken.all
-            response_success('users','index',taptokens)
+        else
+            num = params[:num]
+            taptokens = TapToken.last(num)
+        end
+        response_success('tokens','index',taptokens)
+    end
+
+
+    # get info of each token
+    def info
+        begin
+            token_id = params[:token_id]
+            taptoken = TapToken.find_by(token_id:token_id)
+            response_success('tokens','info',taptoken)
         rescue => error
             response_internal_server_error(error)
         end
