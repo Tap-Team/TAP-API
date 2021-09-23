@@ -13,6 +13,7 @@ class TokensController < ApplicationController
         end
     end
 
+
     # issue NFT
     def create
         uid = params[:uid]
@@ -36,7 +37,7 @@ class TokensController < ApplicationController
             taptoken.save
 
             # response
-            response_success('tokens','create',"{ token_id: #{token_id} }")
+            response_success('tokens','create',"{ \"token_id\": \"#{token_id}\" }")
 
 
         # TPC不足をレスキューするよ
@@ -48,6 +49,7 @@ class TokensController < ApplicationController
             response_internal_server_error(error)
         end
     end
+
 
     # transfer NFT
     def update
@@ -76,7 +78,7 @@ class TokensController < ApplicationController
             generate
 
             # response
-            response_success('tokens','update',"{ token_id: #{token_id}, txid: #{tx.txid} }")
+            response_success('tokens','update',"{ \"token_id\": \"#{token_id}\", \"txid\": \"#{tx.txid}\" }")
 
 
         # TPC不足をレスキューするよ
@@ -88,6 +90,7 @@ class TokensController < ApplicationController
             response_internal_server_error(error)
         end
     end
+
 
     # burn NFT
     def destroy
@@ -115,7 +118,7 @@ class TokensController < ApplicationController
             taptoken.destroy
 
             # response
-            response_success('tokens','destroy',"{ token_id: #{token_id}, txid: #{tx.txid} }")
+            response_success('tokens','destroy',"{ \"token_id\": \"#{token_id}\", \"txid\": \"#{tx.txid}\" }")
 
 
         # TPC不足をレスキューするよ
