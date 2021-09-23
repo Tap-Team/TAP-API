@@ -11,10 +11,10 @@ class TokensController < ApplicationController
 
     @@bucket = storage.bucket "tap-f4f38.appspot.com"
 
-    # get list of NFT
-        # TODO:このままだとエグい量返されて大変だから数指定できるようにしたいね。
-    def index
 
+
+    # get list of token
+    def index
         if params[:num].blank?
             taptokens = TapToken.all
         else
@@ -27,17 +27,13 @@ class TokensController < ApplicationController
 
     # get info of each token
     def info
-        begin
-            token_id = params[:token_id]
-            taptoken = TapToken.find_by(token_id:token_id)
-            response_success('tokens','info',taptoken)
-        rescue => error
-            response_internal_server_error(error)
-        end
+        token_id = params[:token_id]
+        taptoken = TapToken.find_by(token_id:token_id)
+        response_success('tokens','info',taptoken)
     end
 
 
-    # issue NFT
+    # issue token
     def create
         uid = params[:uid]
         uri = params[:data]
@@ -89,7 +85,7 @@ class TokensController < ApplicationController
     end
 
 
-    # transfer NFT
+    # transfer token
     def update
         sender_uid = params[:sender_uid]
         receive_uid = params[:receive_uid]
@@ -130,7 +126,7 @@ class TokensController < ApplicationController
     end
 
 
-    # burn NFT
+    # burn token
     def destroy
         uid = params[:uid]
         token_id = params[:id]
