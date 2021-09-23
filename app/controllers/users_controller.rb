@@ -30,6 +30,11 @@ class UsersController < ApplicationController
     def create
         uid = params[:uid]
 
+        if TapUser.find_by(uid:uid)
+            response_bad_request("uid: \"#{uid}\" is already registerd.")
+            return
+        end
+
         begin
             wallet = Glueby::Wallet.create
 
