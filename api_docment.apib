@@ -21,21 +21,38 @@ REST APIのイメージで作ってるからその感じで。
 :::
 
 # Group TapUser
-### ユーザー一覧 [GET /users]
-ユーザーの一覧を表示する。
+### 一覧 [GET /users/{num}]
+ユーザーの一覧を表示する。 `{num}` を指定することで任意の数だけ直近のユーザーを取得可能。
 
 ::: note
 ## Note
 たぶん使い所ありませんデバッグ用です。
 :::
 
++ Parameters
+    + num: `5` (optional, int) - 取得ユーザー数
+
+
 + Response 200
     + Body
         ```
         {
-            "status": "200",
-            "message": "Success! users#index",
-            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+            "status": 200,
+            "message": "Success! tokens#index",
+            "data": [
+                {
+                "uid": "init",
+                "wallet_id": "9baae4db7398a411964cc78e13061954",
+                "created_at": "2021-09-23T03:31:02.407Z",
+                "updated_at": "2021-09-23T03:31:02.407Z"
+                },
+                {
+                "uid": "testuid",
+                "wallet_id": "6026f2fe82b4f805e82a51c8e00255fc",
+                "created_at": "2021-09-23T03:32:34.390Z",
+                "updated_at": "2021-09-23T03:32:34.390Z"
+                }
+            ]
         }
         ```
 + Response 500
@@ -47,9 +64,9 @@ REST APIのイメージで作ってるからその感じで。
             "data": "(error message)"
         }
         ```
-        
-### トークン一覧（ユーザー毎） [GET /users/{uid}]
-ユーザーのトークン一覧を表示する。
+
+### 情報取得 [GET /users/info/{uid}]
+ユーザーの情報とトークン一覧を表示する。
 
 + Parameters
     + uid: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Firabase Auth's uid.
@@ -58,9 +75,19 @@ REST APIのイメージで作ってるからその感じで。
     + Body
         ```
         {
-            "status": "200",
-            "message": "Success! users#index/uid",
-            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+            "status": 200,
+            "message": "Success! users#index/testuid",
+            "data": {
+                "uid": "testuid",
+                "wallet_id": "6026f2fe82b4f805e82a51c8e00255fc",
+                "created_at": "2021-09-23T03:32:34.390Z",
+                "updated_at": "2021-09-23T03:32:34.390Z",
+                "tokens": [
+                "c36c996fd8404937baad81f6a07784a53b5d6af87b938ea7d38a76abbaea4df1ec",
+                "c362a79394a8b5f75ca45b4bcb0944ef1f263fde945c134b35701b98624742e528",
+                "c311839dbbf214fda45294d0fb32f8d7ea6641f2123acf1b1be0d1fd446e3a7bbf"
+                ]
+            }
         }
         ```
 + Response 500
@@ -76,6 +103,7 @@ REST APIのイメージで作ってるからその感じで。
 
 ### 登録 [POST /users]
 新規ユーザを登録する
+
 
 + Request (application/json)
 	+ Body
@@ -176,10 +204,10 @@ REST APIのイメージで作ってるからその感じで。
 
 
 # Group TapToken
-トークンに関するリソーす
+トークンに関するリソース
 
 ### 一覧 [GET /tokens/{num}]
-トークンの一覧を取得する。URL内の `{num}` で指定した量だけ直近のトークンを取得することも可能。
+トークンの一覧を取得する。 `{num}` を指定することで任意の数だけ直近のトークンを取得可能。
 
 + Parameters
     + num: `5` (optional, int) - 取得トークン量
@@ -188,11 +216,61 @@ REST APIのイメージで作ってるからその感じで。
     + Body
         ```
         {
-            "status": "200",
+            "status": 200,
             "message": "Success! tokens#index",
-            "data": "IIKANNZI_NI_KAETTE_KURUYO"
+            "data": [
+                {
+                "token_id": "c36c996fd8404937baad81f6a07784a53b5d6af87b938ea7d38a76abbaea4df1ec",
+                "data": "gs://tap-f4f38.appspot.com/tmp/testttttttttttttt.png",
+                "created_at": "2021-09-23T03:45:14.581Z",
+                "updated_at": "2021-09-23T03:45:14.581Z"
+                },
+                {
+                "token_id": "c362a79394a8b5f75ca45b4bcb0944ef1f263fde945c134b35701b98624742e528",
+                "data": "gs://tap-f4f38.appspot.com/tmp/testttttttttttttt.png",
+                "created_at": "2021-09-23T03:48:43.521Z",
+                "updated_at": "2021-09-23T03:48:43.521Z"
+                },
+                {
+                "token_id": "c311839dbbf214fda45294d0fb32f8d7ea6641f2123acf1b1be0d1fd446e3a7bbf",
+                "data": "gs://tap-f4f38.appspot.com/tmp/testttttttttttttt.png",
+                "created_at": "2021-09-23T03:50:02.078Z",
+                "updated_at": "2021-09-23T03:50:02.078Z"
+                }
+            ]
         }
         ```
++ Response 500
+    + Body
+        ```
+        {
+            "status": "500",
+            "message": "Internal Server Error",
+            "data": "(error message)"
+        }
+        ```
+
+### 情報取得 [GET /tokens/info/{token_id}]
+指定トークンの情報を取得する。
+
++ Parameters
+    + token_id: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Token's id
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": 200,
+            "message": "Success! tokens#info",
+            "data": {
+                "token_id": "c36c996fd8404937baad81f6a07784a53b5d6af87b938ea7d38a76abbaea4df1ec",
+                "data": "gs://tap-f4f38.appspot.com/testttttttttttttt.png",
+                "created_at": "2021-09-23T03:45:14.581Z",
+                "updated_at": "2021-09-23T03:45:14.581Z"
+            }
+        }
+        ```
+
 + Response 500
     + Body
         ```
@@ -248,7 +326,7 @@ REST APIのイメージで作ってるからその感じで。
         ```
         {
             "sender_uid": "KOKO_NI_UID_WO_IRERU_YO",
-            "receive_uid": "KOKO_NI_UID_WO_IRERU_YO"
+            "receiver_uid": "KOKO_NI_UID_WO_IRERU_YO"
         }
         ```
 

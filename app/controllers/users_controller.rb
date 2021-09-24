@@ -1,43 +1,66 @@
 class UsersController < ApplicationController
 
-    # get list of User
-        # NOTE: いつ使うんこれ
+    # get list of user
     def index
-        # 全表示
-        if params[:uid].blank?
-            begin
-                tapusers = TapUser.all
-                response_success('users','index',tapusers)
-            rescue => error
-                response_internal_server_error(error)
-            end
+        if params[:num].blank?
+            tapusers = TapUser.all
         else
-            begin
-                uid = params[:uid]
-                wallet_id = TapUser.find_by(uid: uid).wallet_id
-                wallet = Glueby::Wallet.load(wallet_id)
-                balances = wallet.balances
-                token_ids = balances.keys.reject(&:blank?)
-                response_success("users", "index/#{uid}", token_ids)
-            rescue => error
-                response_internal_server_error(error)
-            end
+            num = params[:num]
+            tapusers = TapUser.last(num)
         end
+
+        response_success('tokens','index',tapusers)
     end
 
 
-    # create User
-    def create
+    # get info of each user
+    def info
         uid = params[:uid]
 
-        if TapUser.find_by(uid:uid)
-            response_bad_request("uid: \"#{uid}\" is already registerd.")
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
             return
         end
 
         begin
+            tapuser = TapUser.find_by(uid:uid)
+            wallet_id = tapuser.wallet_id
+            created_at = tapuser.created_at
+            updated_at = tapuser.updated_at
+
+            # get balance
+            wallet_id = TapUser.find_by(uid: uid).wallet_id
+            wallet = Glueby::Wallet.load(wallet_id)
+            balances = wallet.balances
+
+            # token nomi tyuusyutu
+            token_ids = balances.keys.reject(&:blank?)
+
+            # response
+            response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: token_ids }
+
+            response_success("users", "index/#{uid}", response)
+
+        rescue => error
+            response_internal_server_error(error)
+        end
+    end
+
+
+    # create user
+    def create
+        uid = params[:uid]
+
+        if TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - already registerd.")
+            return
+        end
+
+        begin
+            # create wallet
             wallet = Glueby::Wallet.create
 
+            # save to db
             tapuser = TapUser.create(uid:uid, wallet_id:wallet.id)
             tapuser.save
 
@@ -49,14 +72,22 @@ class UsersController < ApplicationController
     end
 
 
-    # update User
+    # update user
         # NOTE: NOT SUPORT OFFICIALY
     def update
         uid = params[:uid]
         wallet_id = params[:wallet_id]
 
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
         begin
+            # search from db
             tapuser = TapUser.find_by(uid: uid)
+
+            # update db
             tapuser.update(wallet_id: wallet_id)
 
             response_success('users','update')
@@ -67,13 +98,21 @@ class UsersController < ApplicationController
     end
 
 
-    # delete User
-        # NOTE: NOT DELETE WALLET, BUT BURN ALL TOKENS
+    # delete user
+        # NOTE: NOT DELETE WALLET
     def destroy
         uid = params[:uid]
 
+        unless TapUser.find_by(uid:uid)
+            response_bad_request("uid: #{uid} - not found.")
+            return
+        end
+
         begin
+            # search from db
             tapuser = TapUser.find_by(uid: uid)
+
+            # delete from db
             tapuser.destroy
 
             response_success('users','destroy')
