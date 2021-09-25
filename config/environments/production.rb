@@ -112,5 +112,6 @@ Rails.application.configure do
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
 
   # host whitelist
+  config.hosts << "_api.tap.shmn7iii.net"
   config.hosts << "api.tap.shmn7iii.net"
 end
