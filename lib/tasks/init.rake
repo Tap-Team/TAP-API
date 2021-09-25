@@ -27,6 +27,14 @@ namespace :init do
         puts "address: #{address}"
         puts "wallet.balances: #{wallet.balances}"
         puts "block count: #{Glueby::Internal::RPC.client.getblockcount}"
+
+        puts ""
+        puts "=================================CAUTION================================="
+        puts "The .env file has been generated, but rails has not loaded it yet."
+        puts "Restart the rails app for the changes or initialization to take effect."
+        puts ""
+        puts "If you use systemd, run `systemctl restart <app-name>`"
+        puts ""
     end
 
     desc "残高確認"
