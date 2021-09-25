@@ -65,5 +65,5 @@ Rails.application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 
   # host whitelist
-  config.hosts << ".tap.shmn7iii.net"
+  config.hosts << ".shmn7iii.net"
 end
