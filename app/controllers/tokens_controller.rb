@@ -86,8 +86,8 @@ class TokensController < ApplicationController
             taptoken.save
 
             # response
-            response = { token_id: token_id }
-            response_success('tokens', 'create', response)
+            taptoken = TapToken.find_by(token_id:token_id)
+            response_success('tokens', 'create', taptoken)
 
 
         # TPC不足をレスキューするよ
@@ -201,8 +201,8 @@ class TokensController < ApplicationController
                 if file.exists?
                     file.delete
                 end
-            else
-                response_bad_request("#{uri} not found.")
+            # else
+            #     response_bad_request("#{uri} not found.")
             end
 
             # destroy from db
