@@ -163,7 +163,7 @@ class TokensController < ApplicationController
     # burn token
     def destroy
         uid = params[:uid]
-        token_id = params[:id]
+        token_id = params[:token_id]
 
 
         unless TapUser.find_by(uid:uid)
