@@ -2,48 +2,47 @@ class UsersController < ApplicationController
 
     # get list of user
     def index
-        if params[:num].blank?
-            tapusers = TapUser.all
+        # limit ari
+        if !params[:limit].blank?
+            num = params[:limit]
+            response = TapUser.last(num)
+
+        # uid sitei
+        elsif !params[:uid].blank?
+            uid = params[:uid]
+
+            unless TapUser.find_by(uid:uid)
+                response_bad_request("uid: #{uid} - not found.")
+                return
+            end
+
+            begin
+                tapuser = TapUser.find_by(uid:uid)
+                wallet_id = tapuser.wallet_id
+                created_at = tapuser.created_at
+                updated_at = tapuser.updated_at
+
+                # get balance
+                wallet_id = TapUser.find_by(uid: uid).wallet_id
+                wallet = Glueby::Wallet.load(wallet_id)
+                balances = wallet.balances
+
+                # token nomi tyuusyutu
+                token_ids = balances.keys.reject(&:blank?)
+
+                # response
+                response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: token_ids }
+
+            rescue => error
+                response_internal_server_error(error)
+            end
+
+        # nanimo nai
         else
-            num = params[:num]
-            tapusers = TapUser.last(num)
+            response = TapUser.all
         end
 
-        response_success('tokens','index',tapusers)
-    end
-
-
-    # get info of each user
-    def info
-        uid = params[:uid]
-
-        unless TapUser.find_by(uid:uid)
-            response_bad_request("uid: #{uid} - not found.")
-            return
-        end
-
-        begin
-            tapuser = TapUser.find_by(uid:uid)
-            wallet_id = tapuser.wallet_id
-            created_at = tapuser.created_at
-            updated_at = tapuser.updated_at
-
-            # get balance
-            wallet_id = TapUser.find_by(uid: uid).wallet_id
-            wallet = Glueby::Wallet.load(wallet_id)
-            balances = wallet.balances
-
-            # token nomi tyuusyutu
-            token_ids = balances.keys.reject(&:blank?)
-
-            # response
-            response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: token_ids }
-
-            response_success("users", "index/#{uid}", response)
-
-        rescue => error
-            response_internal_server_error(error)
-        end
+        response_success('users','index',response)
     end
 
 

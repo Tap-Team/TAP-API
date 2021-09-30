@@ -15,29 +15,28 @@ class TokensController < ApplicationController
 
     # get list of token
     def index
-        if params[:num].blank?
-            taptokens = TapToken.all
+        # limit ari
+        if !params[:limit].blank?
+            num = params[:limit]
+            response = TapToken.last(num)
+
+        # token_id sitei
+        elsif !params[:token_id].blank?
+            token_id = params[:token_id]
+
+            unless TapToken.find_by(token_id:token_id)
+                response_bad_request("token_id: #{token_id} - not found.")
+                return
+            end
+
+            response = TapToken.find_by(token_id:token_id)
+
+        # nanimonai
         else
-            num = params[:num]
-            taptokens = TapToken.last(num)
+            response = TapToken.all
         end
 
-        response_success('tokens', 'index', taptokens)
-    end
-
-
-    # get info of each token
-    def info
-        token_id = params[:token_id]
-
-        unless TapToken.find_by(token_id:token_id)
-            response_bad_request("token_id: #{token_id} - not found.")
-            return
-        end
-
-        taptoken = TapToken.find_by(token_id:token_id)
-
-        response_success('tokens', 'info', taptoken)
+        response_success('tokens', 'index', response)
     end
 
 
