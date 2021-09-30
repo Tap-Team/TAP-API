@@ -21,16 +21,13 @@ REST APIのイメージで作ってるからその感じで。
 :::
 
 # Group TapUser
-### 一覧 [GET /users/{num}]
-ユーザーの一覧を表示する。 `{num}` を指定することで任意の数だけ直近のユーザーを取得可能。
+### 一覧 [GET /users{?limit}]
+ユーザーの一覧を表示する。
 
-::: note
-## Note
-たぶん使い所ありませんデバッグ用です。
-:::
+?limitで取得数の指定が可能。
 
 + Parameters
-    + num: `5` (optional, int) - 取得ユーザー数
+    + limit: `5` (optional, int) - 取得ユーザー数。指定がない場合は全てのユーザーを返す。
 
 
 + Response 200
@@ -65,7 +62,7 @@ REST APIのイメージで作ってるからその感じで。
         }
         ```
 
-### 情報取得 [GET /users/info/{uid}]
+### 情報取得 [GET /users/{uid}]
 ユーザーの情報とトークン一覧を表示する。
 
 + Parameters
@@ -206,11 +203,11 @@ REST APIのイメージで作ってるからその感じで。
 # Group TapToken
 トークンに関するリソース
 
-### 一覧 [GET /tokens/{num}]
-トークンの一覧を取得する。 `{num}` を指定することで任意の数だけ直近のトークンを取得可能。
+### 一覧 [GET /tokens{?limit}]
+トークンの一覧を取得する。
 
 + Parameters
-    + num: `5` (optional, int) - 取得トークン量
+    + limit: `5` (optional, int) - 取得トークン量。指定がない場合は全てのトークンを返す。
 
 + Response 200
     + Body
@@ -250,7 +247,7 @@ REST APIのイメージで作ってるからその感じで。
         }
         ```
 
-### 情報取得 [GET /tokens/info/{token_id}]
+### 情報取得 [GET /tokens/{token_id}]
 指定トークンの情報を取得する。
 
 + Parameters

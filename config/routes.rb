@@ -14,15 +14,13 @@ Rails.application.routes.draw do
   post 'debugs/uploadimage', to: 'debugs#uploadimage'
 
   # users
-  get 'users/(:num)', to: 'users#index'
-  get 'users/info/:uid', to: 'users#info'
+  get 'users/(:uid)', to: 'users#index'
   post 'users', to: 'users#create'
   put 'users/:uid', to: 'users#update'
   delete 'users/:uid', to: 'users#destroy'
 
   # tokens
-  get 'tokens/(:num)', to: 'tokens#index'
-  get 'tokens/info/:token_id', to: 'tokens#info'
+  get 'tokens/(:token_id)', to: 'tokens#index'
   post 'tokens', to: 'tokens#create'
   put 'tokens/:token_id', to: 'tokens#update'
   delete 'tokens/:token_id', to: 'tokens#destroy'
