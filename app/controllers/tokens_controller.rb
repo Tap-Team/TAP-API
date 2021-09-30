@@ -105,7 +105,7 @@ class TokensController < ApplicationController
     def update
         sender_uid = params[:sender_uid]
         receiver_uid = params[:receiver_uid]
-        token_id = params[:id]
+        token_id = params[:token_id]
 
 
         unless TapUser.find_by(uid:sender_uid)
