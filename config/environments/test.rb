@@ -59,5 +59,5 @@ Rails.application.configure do
   # config.action_view.annotate_rendered_view_with_filenames = true
 
   # host whitelist
-  config.hosts << "api.tap.shmn7iii.net"
+  config.hosts << ".shmn7iii.net"
 end

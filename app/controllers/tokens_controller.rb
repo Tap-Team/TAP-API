@@ -88,8 +88,8 @@ class TokensController < ApplicationController
             taptoken.save
 
             # response
-            response = { token_id: token_id }
-            response_success('tokens', 'create', response)
+            taptoken = TapToken.find_by(token_id:token_id)
+            response_success('tokens', 'create', taptoken)
 
 
         # TPC不足をレスキューするよ
@@ -107,7 +107,7 @@ class TokensController < ApplicationController
     def update
         sender_uid = params[:sender_uid]
         receiver_uid = params[:receiver_uid]
-        token_id = params[:id]
+        token_id = params[:token_id]
 
 
         unless TapUser.find_by(uid:sender_uid)
@@ -165,7 +165,7 @@ class TokensController < ApplicationController
     # burn token
     def destroy
         uid = params[:uid]
-        token_id = params[:id]
+        token_id = params[:token_id]
 
 
         unless TapUser.find_by(uid:uid)
@@ -200,7 +200,14 @@ class TokensController < ApplicationController
                     # dbからURIもらってるのでファイルは存在する前提で処理
             filename = TapToken.find_by(token_id: token_id).data.split('/')[-1]
             file = @@bucket.file filename
-            file.delete
+
+            unless file.blank?
+                if file.exists?
+                    file.delete
+                end
+            # else
+            #     response_bad_request("#{uri} not found.")
+            end
 
             # destroy from db
             taptoken = TapToken.find_by(token_id: token_id)
