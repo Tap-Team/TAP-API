@@ -112,12 +112,12 @@ class TokensController < ApplicationController
 
 
         unless TapUser.find_by(uid:sender_uid)
-            response_bad_request("uid: #{sender_uid} - not found.")
+            response_bad_request("sender_uid: #{sender_uid} - not found.")
             return
         end
 
         unless TapUser.find_by(uid:receiver_uid)
-            response_bad_request("uid: #{receiver_uid} - not found.")
+            response_bad_request("receiver_uid: #{receiver_uid} - not found.")
             return
         end
 
