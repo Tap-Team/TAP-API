@@ -61,7 +61,7 @@ class TokensController < ApplicationController
             return
         end
 
-        if file.exists?
+        unless file.exists?
             response_bad_request("#{uri} not found.")
             return
         end
