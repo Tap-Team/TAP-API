@@ -32,7 +32,7 @@ class TokensController < ApplicationController
     # issue token
     def create
         uid = params[:uid]
-        uri = params[:data]
+        data = params[:data] # require base64 image
 
 
         unless TapUser.find_by(uid:uid)
@@ -53,9 +53,8 @@ class TokensController < ApplicationController
             # generate block
             generate
 
-
             # save to db
-            taptoken = TapToken.create(token_id: token_id, data:"gs://tap-f4f38.appspot.com/#{token_id}.#{extension}")
+            taptoken = TapToken.create(token_id: token_id, tx_id: nil) #TODO:write tx_id
             taptoken.save
 
             # response
@@ -165,7 +164,6 @@ class TokensController < ApplicationController
 
             # generate block
             generate
-
 
             # destroy from db
             taptoken = TapToken.find_by(token_id: token_id)
