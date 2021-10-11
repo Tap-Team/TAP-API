@@ -2,6 +2,8 @@ require "google/cloud/storage"
 
 class TokensController < ApplicationController
 
+    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
+
     # get list of token
     def index
         # limit ari
