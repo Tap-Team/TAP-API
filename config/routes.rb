@@ -13,6 +13,9 @@ Rails.application.routes.draw do
 
   post 'debugs/uploadimage', to: 'debugs#uploadimage'
 
+  get 'debugs/focnft', to: 'debugs#focnft'
+  get 'debugs/getdata', to: 'debugs#get_data_from_tx'
+
   # users
   get 'users/(:uid)', to: 'users#index'
   post 'users', to: 'users#create'
