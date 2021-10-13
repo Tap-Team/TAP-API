@@ -1,5 +1,23 @@
 class UsersController < ApplicationController
 
+    @@client = Google::Apis::IdentitytoolkitV3::IdentityToolkitService.new
+    @@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+        json_key_io: File.open("./SERVICE_ACCOUNT.json"),
+        scope: 'https://www.googleapis.com/auth/identitytoolkit'
+    )
+    # check auth
+    def check_auth(uid)
+        request = Google::Apis::IdentitytoolkitV3::GetAccountInfoRequest.new(local_id: [uid])
+        account = @@client.get_account_info(request)
+
+        unless account.users.nil?
+            return true
+        else
+            return false
+        end
+    end
+
+
     # get list of user
     def index
         # limit ari
@@ -52,6 +70,12 @@ class UsersController < ApplicationController
 
         if TapUser.find_by(uid:uid)
             response_bad_request("uid: #{uid} - already registerd.")
+            return
+        end
+
+        # firebase auth
+        unless check_auth(uid)
+            response_bad_request("uid: #{uid} - doesn't exist on auth.")
             return
         end
 
