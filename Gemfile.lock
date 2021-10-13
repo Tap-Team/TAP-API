@@ -116,6 +116,8 @@ GEM
       webrick
     google-apis-iamcredentials_v1 (0.7.0)
       google-apis-core (>= 0.4, < 2.a)
+    google-apis-identitytoolkit_v3 (0.5.0)
+      google-apis-core (>= 0.4, < 2.a)
     google-apis-storage_v1 (0.7.0)
       google-apis-core (>= 0.4, < 2.a)
     google-cloud-core (1.6.0)
@@ -261,6 +263,7 @@ DEPENDENCIES
   byebug
   dotenv-rails
   glueby
+  google-apis-identitytoolkit_v3
   google-cloud-storage
   listen (~> 3.3)
   puma (~> 5.0)

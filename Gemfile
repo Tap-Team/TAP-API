@@ -53,3 +53,6 @@ gem 'dotenv-rails'
 
 # google cloud storage
 gem 'google-cloud-storage'
+
+# Firebase Auth
+gem 'google-apis-identitytoolkit_v3'
