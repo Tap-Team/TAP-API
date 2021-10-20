@@ -1,4 +1,4 @@
-class UsersController < ApplicationController::API
+class UsersController < ApplicationController
 
     @@client = Google::Apis::IdentitytoolkitV3::IdentityToolkitService.new
     @@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(

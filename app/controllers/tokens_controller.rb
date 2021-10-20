@@ -1,6 +1,6 @@
 require "google/cloud/storage"
 
-class TokensController < ApplicationController::API
+class TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
 
