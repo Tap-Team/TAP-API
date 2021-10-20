@@ -1,4 +1,4 @@
-class DebugsController < ApplicationController
+class DebugsController < ApplicationController::API
 
     # def firestore
     #     service_account = "./SERVICE_ACCOUNT.json"
