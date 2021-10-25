@@ -16,6 +16,15 @@ Rails.application.routes.draw do
     delete 'tokens/:token_id', to: 'tokens#destroy'
   end
 
+
+  get 'debugs/focnft', to: 'debugs#focnft'
+  get 'debugs/getdata', to: 'debugs#get_data_from_tx'
+  post 'debugs/decode_base64_image', to: 'debugs#decode_base64_image'
+
+
+  # ========================================
+  # v1
+
   # debugs
   get 'debugs/createwallet', to: 'debugs#createwallet'
   get 'debugs/getbalance', to: 'debugs#getbalance'
@@ -27,9 +36,6 @@ Rails.application.routes.draw do
   get 'debugs/firestore', to: 'debugs#firestore'
 
   post 'debugs/uploadimage', to: 'debugs#uploadimage'
-
-  get 'debugs/focnft', to: 'debugs#focnft'
-  get 'debugs/getdata', to: 'debugs#get_data_from_tx'
 
   # users
   get 'users/(:uid)', to: 'users#index'
