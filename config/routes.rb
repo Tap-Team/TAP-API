@@ -1,6 +1,21 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
+  # v2
+  namespace :v2 do
+    # users
+    get 'users/(:uid)', to: 'users#index'
+    post 'users', to: 'users#create'
+    put 'users/:uid', to: 'users#update'
+    delete 'users/:uid', to: 'users#destroy'
+
+    # tokens
+    get 'tokens/(:token_id)', to: 'tokens#index'
+    post 'tokens', to: 'tokens#create'
+    put 'tokens/:token_id', to: 'tokens#update'
+    delete 'tokens/:token_id', to: 'tokens#destroy'
+  end
+
   # debugs
   get 'debugs/createwallet', to: 'debugs#createwallet'
   get 'debugs/getbalance', to: 'debugs#getbalance'
