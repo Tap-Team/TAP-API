@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_10_043128) do
+ActiveRecord::Schema.define(version: 2021_10_25_104552) do
 
   create_table "glueby_keys", force: :cascade do |t|
     t.string "private_key"
@@ -57,8 +57,14 @@ ActiveRecord::Schema.define(version: 2021_09_10_043128) do
     t.index ["wallet_id"], name: "index_glueby_wallets_on_wallet_id", unique: true
   end
 
+  create_table "tap_token_v2s", primary_key: "token_id", id: :string, force: :cascade do |t|
+    t.string "tx_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "tap_tokens", primary_key: "token_id", id: :string, force: :cascade do |t|
-    t.string "data"
+    t.string "tx_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
