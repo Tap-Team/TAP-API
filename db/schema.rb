@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 2021_09_10_043128) do
   end
 
   create_table "tap_tokens", primary_key: "token_id", id: :string, force: :cascade do |t|
-    t.string "tx_id"
+    t.string "data"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

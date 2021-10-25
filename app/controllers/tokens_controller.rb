@@ -4,6 +4,15 @@ class TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
 
+    storage = Google::Cloud::Storage.new(
+        project_id: "tap-f4f38",
+        credentials: "./SERVICE_ACCOUNT.json"
+    )
+
+    @@bucket = storage.bucket "tap-f4f38.appspot.com"
+
+
+
     # get list of token
     def index
         # limit ari
@@ -34,13 +43,29 @@ class TokensController < ApplicationController
     # issue token
     def create
         uid = params[:uid]
-        data = params[:data] # require base64 image
+        uri = params[:data]
 
 
         unless TapUser.find_by(uid:uid)
             response_bad_request("uid: #{uid} - not found.")
             return
         end
+
+        # Firebase Storage
+        filename = uri.split('/')[-1]
+        extension = filename.split('.')[-1]
+        file = @@bucket.file "tmp/#{filename}"
+
+        if file.blank?
+            response_bad_request("#{uri} not found.")
+            return
+        end
+
+        unless file.exists?
+            response_bad_request("#{uri} not found.")
+            return
+        end
+
 
         begin
             # read from db
@@ -55,8 +80,12 @@ class TokensController < ApplicationController
             # generate block
             generate
 
+            # Firebase Storage
+            renamed_file = file.copy "#{token_id}.#{extension}"
+            file.delete
+
             # save to db
-            taptoken = TapToken.create(token_id: token_id, tx_id: nil) #TODO:write tx_id
+            taptoken = TapToken.create(token_id: token_id, data:"gs://tap-f4f38.appspot.com/#{token_id}.#{extension}")
             taptoken.save
 
             # response
@@ -166,6 +195,20 @@ class TokensController < ApplicationController
 
             # generate block
             generate
+
+            # Firebase Storage
+                # TODO:デバッグしてません
+                    # dbからURIもらってるのでファイルは存在する前提で処理
+            filename = TapToken.find_by(token_id: token_id).data.split('/')[-1]
+            file = @@bucket.file filename
+
+            unless file.blank?
+                if file.exists?
+                    file.delete
+                end
+            # else
+            #     response_bad_request("#{uri} not found.")
+            end
 
             # destroy from db
             taptoken = TapToken.find_by(token_id: token_id)
