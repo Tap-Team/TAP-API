@@ -8,3 +8,6 @@
 
 ## API Document
 See http://tap-api.shmn7iii.net
+
+## init
+See [init.md](https://github.com/Tap-Team/tap-api/blob/main/init.md)

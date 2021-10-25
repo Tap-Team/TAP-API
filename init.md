@@ -2,8 +2,8 @@
 
 1. git clone
 2. bundle install
-3. run glueby's init process
-4. run rails init:create
+3. run [Glueby's init process](https://github.com/chaintope/glueby#setup-for-ruby-on-rails-application-development)
+4. run `rails init:create`
 
 ## reset
 1. shutdown rails app

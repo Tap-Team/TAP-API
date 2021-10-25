@@ -80,9 +80,18 @@ REST APIのイメージで作ってるからその感じで。
                 "created_at": "2021-09-23T03:32:34.390Z",
                 "updated_at": "2021-09-23T03:32:34.390Z",
                 "tokens": [
-                "c36c996fd8404937baad81f6a07784a53b5d6af87b938ea7d38a76abbaea4df1ec",
-                "c362a79394a8b5f75ca45b4bcb0944ef1f263fde945c134b35701b98624742e528",
-                "c311839dbbf214fda45294d0fb32f8d7ea6641f2123acf1b1be0d1fd446e3a7bbf"
+                    {
+                        "token_id": "c37c442fe40041bae42f42106d1f5b4165aa27ca0be850b0bae8d8d2243da2b161",
+                        "data": "gs://tap-f4f38.appspot.com/c37c442fe40041bae42f42106d1f5b4165aa27ca0be850b0bae8d8d2243da2b161.png",
+                        "created_at": "2021-10-14T04:05:28.005Z",
+                        "updated_at": "2021-10-14T04:05:28.005Z"
+                    },
+                    {
+                        "token_id": "c3318518502076851e6fa4f87901afa39d2af95b213c40808f56e02203138433dc",
+                        "data": "gs://tap-f4f38.appspot.com/c3318518502076851e6fa4f87901afa39d2af95b213c40808f56e02203138433dc.png",
+                        "created_at": "2021-10-14T04:05:55.539Z",
+                        "updated_at": "2021-10-14T04:05:55.539Z"
+                    }
                 ]
             }
         }
@@ -355,6 +364,14 @@ REST APIのイメージで作ってるからその感じで。
 
 + Parameters
     + token_id: `9ao4s2L120RiGkKwJEKojL5uw7H1` (required, string) - Token's id
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "KOKO_NI_UID_WO_IRERU_YO"
+        }
+        ```
 
 + Response 200
     + Body
