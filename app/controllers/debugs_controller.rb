@@ -1,6 +1,25 @@
 class DebugsController < ApplicationController
 
 
+    def decode_base64_image
+        data = params[:data]
+
+        meta_data = data.match(/data:(image|application)\/(.{3,});base64,(.*)/)
+        content_type = meta_data[2]
+        encoded_image = meta_data[3]
+
+        ret = {"content_type": content_type, "encoded_image": encoded_image}
+        response_success('tokens', 'create', ret)
+
+        # if content_type == "jpeg" || content_type == "png"
+        #     decoded_image = Base64.strict_decode64(encoded_image)
+        #     image_file = StringIO.new(decoded_image)
+
+        # else
+        #     response_bad_request("Unsupport Content-Type")
+        # end
+    end
+
     def focnft
         uid = "testuid"
 
