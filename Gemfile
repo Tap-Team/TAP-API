@@ -53,3 +53,6 @@ gem 'dotenv-rails'
 
 # google cloud storage
 gem 'google-cloud-storage'
+
+# IPFS
+gem 'ipfs-api'

@@ -1,5 +1,6 @@
 class DebugsController < ApplicationController
 
+    @@IPFS = IPFS::Connection.new
 
     def decode_base64_image
         data = params[:data]
@@ -8,16 +9,39 @@ class DebugsController < ApplicationController
         content_type = meta_data[2]
         encoded_image = meta_data[3]
 
-        ret = {"content_type": content_type, "encoded_image": encoded_image}
-        response_success('tokens', 'create', ret)
+        if content_type == "jpeg" || content_type == "png"
+            decoded_image = Base64.strict_decode64(encoded_image)
 
-        # if content_type == "jpeg" || content_type == "png"
-        #     decoded_image = Base64.strict_decode64(encoded_image)
-        #     image_file = StringIO.new(decoded_image)
+            dir_name = "#{encoded_image[..20]}"
+            file_name = "#{dir_name}.#{content_type}"
 
-        # else
-        #     response_bad_request("Unsupport Content-Type")
-        # end
+            begin
+                # mkdir
+                dir_path = "#{Rails.root}/storage/images/#{dir_name}"
+                Dir.mkdir(dir_path)
+
+                # write image
+                open("#{dir_path}/#{file_name}", 'wb') do |f|
+                    f.write(decoded_image)
+                end
+
+            rescue => error
+                response_internal_server_error(error)
+                return
+            end
+
+            # upload to IPFS
+            nodes = @@IPFS.add(Dir.new(dir_path))
+
+            # nodes[0] = ~~.png (file)
+            # nodes[1] = ~~~ (directory)
+            ret = {"node.name": nodes[0].name, "node.hash": nodes[0].hash}
+
+            response_success('debugs', 'decode_base64_image', ret)
+
+        else
+            response_bad_request("Unsupport Content-Type")
+        end
     end
 
     def focnft
