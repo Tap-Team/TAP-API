@@ -1,8 +1,10 @@
 require "google/cloud/storage"
+require 'fileutils'
 
 class V2::TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
+    @@IPFS = IPFS::Connection.new
 
     # get list of token
     def index
@@ -36,6 +38,8 @@ class V2::TokensController < ApplicationController
         uid = params[:uid]
         data = params[:data]    # base64 image
 
+        daha_hash = ""
+
 
         unless TapUser.find_by(uid:uid)
             response_bad_request("uid: #{uid} - not found.")
@@ -43,34 +47,86 @@ class V2::TokensController < ApplicationController
         end
 
         begin
-            # read from db
-            wallet_id = TapUser.find_by(uid: uid).wallet_id
+            meta_data = data.match(/data:(image|application)\/(.{3,});base64,(.*)/)
+            content_type = meta_data[2]
+            encoded_image = meta_data[3]
 
-            # issue NTF
+            if content_type == "jpeg" || content_type == "png"
+                decoded_image = Base64.strict_decode64(encoded_image)
+
+                dir_name = "#{encoded_image[..20]}"
+                file_name = "#{dir_name}.#{content_type}"
+
+                dir_path = "#{Rails.root}/storage/images/#{dir_name}"
+
+                begin
+                    # mkdir
+                    Dir.mkdir(dir_path)
+
+                    # write image
+                    open("#{dir_path}/#{file_name}", 'wb') do |f|
+                        f.write(decoded_image)
+                    end
+
+                rescue => error
+                    response_internal_server_error(error)
+                    return
+                end
+
+                # upload to IPFS
+                nodes = @@IPFS.add(Dir.new(dir_path))
+
+                # nodes[0] = ~~.png (file)
+                # nodes[1] = ~~~ (directory)
+                data_hash = nodes[0].hash
+
+                # TODO:この後 pin したいが ruby-ipfs-api-client に pin 機能がなさそう。つらみ。
+                    # なのでカーネルを直で実行したい所存
+                sysetm("ipfs pin #{data_hash}")
+
+                # delete files on local
+                FileUtils.rm_r(dir_path)
+
+            else
+                response_bad_request("Unsupport Content-Type")
+                return
+            end
+        rescue => error
+            response_internal_server_error(error)
+            return
+        end
+
+        begin
+            # load wallet
+            wallet_id = TapUser.find_by(uid: uid).wallet_id
             wallet = Glueby::Wallet.load(wallet_id)
-            tokens = Glueby::Contract::Token.issue!(issuer: wallet, token_type: Tapyrus::Color::TokenTypes::NFT, amount: 1)
-            token_id = tokens[0].color_id.payload.bth
-            token_id = 'c3' + token_id
+
+            # issue NFT
+            tokens = Glueby::Contract::Token.issue_tap_nft(wallet: wallet, prefix: '', content: data_hash)
+            token_id = 'c3' + tokens[0].color_id.payload.bth
+            tx_id = tokens[1].txid
 
             # generate block
             generate
 
             # save to db
-            taptoken = TapToken.create(token_id: token_id, data:"gs://tap-f4f38.appspot.com/#{token_id}.#{extension}")
+            taptoken = TapToken.create(token_id: token_id, tx_id: tx_id)
             taptoken.save
 
             # response
-            taptoken = TapToken.find_by(token_id:token_id)
-            response_success('tokens', 'create', taptoken)
-
+                # TODO:レスポンス何にするかは検討中
+            # taptoken = TapToken.find_by(token_id:token_id)
+            ret = Glueby::Internal::RPC.client.getrawtransaction(tx_id, 1)
+            response_success('tokens', 'create', ret)
 
         # TPC不足をレスキューするよ
         rescue Glueby::Contract::Errors::InsufficientFunds
-            pay2user(wallet_id, 10_000)
+            pay2user(wallet_id, 1_000_000_000)
             retry
 
         rescue => error
             response_internal_server_error(error)
+            return
         end
     end
 
@@ -206,6 +262,6 @@ class V2::TokensController < ApplicationController
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
-        `rails glueby:contract:block_syncer:start`
+        `rails glueby:block_syncer:start`
     end
 end

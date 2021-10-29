@@ -228,7 +228,7 @@ class DebugsController < ApplicationController
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
 
-        `rails glueby:contract:block_syncer:start`
+        `rails glueby:block_syncer:start`
 
         data = "block_id:#{block}"
         response_success('debugs','generatetoaddress',data)
