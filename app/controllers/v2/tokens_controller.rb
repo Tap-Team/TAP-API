@@ -4,7 +4,6 @@ require 'fileutils'
 class V2::TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
-    @@IPFS = IPFS::Connection.new
 
     def get_info(token_id)
         token = TapTokenV2.find_by(token_id:token_id)
@@ -13,7 +12,6 @@ class V2::TokensController < ApplicationController
         created_at = token.created_at
 
         # get from IPFS
-        #@@IPFS.get(data, "#{Rails.root}/tmp/storage/images")
         system("ipfs get --output=#{Rails.root}/tmp/storage/images #{data}")
 
         # get image binary
@@ -25,7 +23,7 @@ class V2::TokensController < ApplicationController
         # delete file
         File.delete("#{Rails.root}/tmp/storage/images/#{data}")
 
-        response = {"token_id": token_id, "tx_id": tx_id, "IPFS address": data, "base64": base64, "created_at": created_at}
+        response = {"token_id": token_id, "tx_id": tx_id, "ipfs_address": data, "base64": base64, "created_at": created_at}
         return response
 
     end
@@ -87,42 +85,31 @@ class V2::TokensController < ApplicationController
             encoded_image = meta_data[3]
 
             if content_type == "jpeg" || content_type == "png"
+                # decode
                 decoded_image = Base64.strict_decode64(encoded_image)
 
-                dir_name = "#{encoded_image[..20]}"
-                file_name = "#{dir_name}.#{content_type}"
+                file_name = "#{encoded_image[..20]}.#{content_type}"
+                dir_path = "#{Rails.root}/tmp/storage/images"
 
-                dir_path = "#{Rails.root}/tmp/storage/images/#{dir_name}"
-
+                # tmp store
                 begin
-                    # mkdir
-                    Dir.mkdir(dir_path)
-
-                    # write image
                     open("#{dir_path}/#{file_name}", 'wb') do |f|
                         f.write(decoded_image)
                     end
-
                 rescue => error
                     response_internal_server_error(error)
                     return
                 end
 
                 # upload to IPFS
-                    # TODO: issue#21
-                nodes = @@IPFS.add(Dir.new(dir_path))
+                ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
+                data_hash = ret.split(" ")[1]
 
-                # nodes[0] = ~~.png (file)
-                # nodes[1] = ~~~ (directory)
-                data_hash = nodes[0].hash
-
-                # TODO:この後 pin したいが ruby-ipfs-api-client に pin 機能がなさそう。つらみ。
-                    # なのでカーネルを直で実行したい所存
-                        # TODO:未デバッグ
-                # sysetm("ipfs pin #{data_hash}")
+                # pin
+                system("ipfs pin add #{data_hash}")
 
                 # delete files on local
-                FileUtils.rm_r(dir_path)
+                File.delete("#{dir_path}/#{file_name}")
 
             else
                 response_bad_request("Unsupport Content-Type")

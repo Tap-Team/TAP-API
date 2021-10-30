@@ -56,7 +56,3 @@ gem 'google-cloud-storage'
 
 # Firebase Auth
 gem 'google-apis-identitytoolkit_v3'
-
-# IPFS
-gem 'ipfs-api'
-
