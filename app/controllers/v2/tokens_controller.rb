@@ -1,5 +1,4 @@
 require "google/cloud/storage"
-require 'fileutils'
 
 class V2::TokensController < ApplicationController
 
