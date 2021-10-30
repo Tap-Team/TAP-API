@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_30_061727) do
+ActiveRecord::Schema.define(version: 2021_10_30_070944) do
 
   create_table "glueby_keys", force: :cascade do |t|
     t.string "private_key"
