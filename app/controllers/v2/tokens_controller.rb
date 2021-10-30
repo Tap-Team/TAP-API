@@ -6,30 +6,64 @@ class V2::TokensController < ApplicationController
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
     @@IPFS = IPFS::Connection.new
 
+    def get_info(token_id)
+        token = TapTokenV2.find_by(token_id:token_id)
+        tx_id = token.tx_id
+        data = get_data_from_tx(tx_id)
+        created_at = token.created_at
+
+        # get from IPFS
+        #@@IPFS.get(data, "#{Rails.root}/tmp/storage/images")
+        system("ipfs get --output=#{Rails.root}/tmp/storage/images #{data}")
+
+        # get image binary
+        binary_data = File.read("#{Rails.root}/tmp/storage/images/#{data}")
+
+        # base64 encode
+        base64 = "data:image/png;base64," + Base64.strict_encode64(binary_data)
+
+        # delete file
+        File.delete("#{Rails.root}/tmp/storage/images/#{data}")
+
+        response = {"token_id": token_id, "tx_id": tx_id, "IPFS address": data, "base64": base64, "created_at": created_at}
+        return response
+
+    end
+
     # get list of token
     def index
+        response = ""
+        response_token_list = []
         # limit ari
         if !params[:limit].blank?
-            num = params[:limit]
-            response = TapToken.last(num)
+            for t in TapTokenV2.last(params[:limit])
+                response_token_list.push(get_info(t.token_id))
+            end
+
+            response = response_token_list
 
         # token_id sitei
         elsif !params[:token_id].blank?
             token_id = params[:token_id]
+            t = TapTokenV2.find_by(token_id:token_id)
 
-            unless TapToken.find_by(token_id:token_id)
+            unless t
                 response_bad_request("token_id: #{token_id} - not found.")
                 return
             end
 
-            response = TapToken.find_by(token_id:token_id)
+            response = get_info(t.token_id)
 
         # nanimonai
         else
-            response = TapToken.all
+            for t in TapTokenV2.all
+                response_token_list.push(get_info(t.token_id))
+            end
+            response = response_token_list
+
         end
 
-        response_success('tokens', 'index', response)
+        response_success('v2/tokens', 'index', response)
     end
 
 
@@ -38,6 +72,7 @@ class V2::TokensController < ApplicationController
         uid = params[:uid]
         data = params[:data]    # base64 image
 
+        # image's IPFS address
         daha_hash = ""
 
 
@@ -57,7 +92,7 @@ class V2::TokensController < ApplicationController
                 dir_name = "#{encoded_image[..20]}"
                 file_name = "#{dir_name}.#{content_type}"
 
-                dir_path = "#{Rails.root}/storage/images/#{dir_name}"
+                dir_path = "#{Rails.root}/tmp/storage/images/#{dir_name}"
 
                 begin
                     # mkdir
@@ -74,6 +109,7 @@ class V2::TokensController < ApplicationController
                 end
 
                 # upload to IPFS
+                    # TODO: issue#21
                 nodes = @@IPFS.add(Dir.new(dir_path))
 
                 # nodes[0] = ~~.png (file)
@@ -82,7 +118,8 @@ class V2::TokensController < ApplicationController
 
                 # TODO:この後 pin したいが ruby-ipfs-api-client に pin 機能がなさそう。つらみ。
                     # なのでカーネルを直で実行したい所存
-                sysetm("ipfs pin #{data_hash}")
+                        # TODO:未デバッグ
+                # sysetm("ipfs pin #{data_hash}")
 
                 # delete files on local
                 FileUtils.rm_r(dir_path)
@@ -110,14 +147,14 @@ class V2::TokensController < ApplicationController
             generate
 
             # save to db
-            taptoken = TapToken.create(token_id: token_id, tx_id: tx_id)
+            taptoken = TapTokenV2.create(token_id: token_id, tx_id: tx_id)
             taptoken.save
 
             # response
                 # TODO:レスポンス何にするかは検討中
-            # taptoken = TapToken.find_by(token_id:token_id)
+            # taptoken = TapTokenV2.find_by(token_id:token_id)
             ret = Glueby::Internal::RPC.client.getrawtransaction(tx_id, 1)
-            response_success('tokens', 'create', ret)
+            response_success('v2/tokens', 'create', ret)
 
         # TPC不足をレスキューするよ
         rescue Glueby::Contract::Errors::InsufficientFunds
@@ -148,7 +185,7 @@ class V2::TokensController < ApplicationController
             return
         end
 
-        unless TapToken.find_by(token_id:token_id)
+        unless TapTokenV2.find_by(token_id:token_id)
             response_bad_request("token_id: #{token_id} - not found.")
             return
         end
@@ -176,7 +213,7 @@ class V2::TokensController < ApplicationController
 
             # response
             response = { token_id: token_id, txid: tx.txid}
-            response_success('tokens', 'update', response)
+            response_success('v2/tokens', 'update', response)
 
 
         # TPC不足をレスキューするよ
@@ -201,7 +238,7 @@ class V2::TokensController < ApplicationController
             return
         end
 
-        unless TapToken.find_by(token_id:token_id)
+        unless TapTokenV2.find_by(token_id:token_id)
             response_bad_request("token_id: #{token_id} - not found.")
             return
         end
@@ -224,12 +261,12 @@ class V2::TokensController < ApplicationController
             generate
 
             # destroy from db
-            taptoken = TapToken.find_by(token_id: token_id)
+            taptoken = TapTokenV2.find_by(token_id: token_id)
             taptoken.destroy
 
             # response
             response = { token_id: token_id, txid: tx.txid }
-            response_success('tokens', 'destroy', response)
+            response_success('v2/tokens', 'destroy', response)
 
 
         # TPC不足をレスキューするよ
@@ -264,4 +301,13 @@ class V2::TokensController < ApplicationController
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
         `rails glueby:block_syncer:start`
     end
+
+    def get_data_from_tx(tx_id)
+        tx_payload = Glueby::Internal::RPC.client.getrawtransaction(tx_id, 0)
+        txx = Tapyrus::Tx.parse_from_payload(tx_payload.htb)
+        data = txx.outputs[1].script_pubkey.op_return_data.bth
+        data = [data].pack("H*")
+        return data
+    end
+
 end
