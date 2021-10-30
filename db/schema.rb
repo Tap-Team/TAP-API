@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_25_104552) do
+ActiveRecord::Schema.define(version: 2021_10_30_061727) do
 
   create_table "glueby_keys", force: :cascade do |t|
     t.string "private_key"
@@ -64,7 +64,7 @@ ActiveRecord::Schema.define(version: 2021_10_25_104552) do
   end
 
   create_table "tap_tokens", primary_key: "token_id", id: :string, force: :cascade do |t|
-    t.string "tx_id"
+    t.string "data"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
