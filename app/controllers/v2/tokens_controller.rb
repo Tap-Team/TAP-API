@@ -102,7 +102,7 @@ class V2::TokensController < ApplicationController
                 ipfs_address = ret.split(" ")[1]
 
                 # pin
-                system("ipfs pin add #{data_hash}")
+                system("ipfs pin add #{ipfs_address}")
 
                 # delete files on local
                 File.delete("#{dir_path}/#{file_name}")
