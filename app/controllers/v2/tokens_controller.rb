@@ -67,52 +67,51 @@ class V2::TokensController < ApplicationController
         uid = params[:uid]
         data = params[:token_data]    # base64 image
 
-        # image's IPFS address
-        ipfs_address = ""
-
-
         unless TapUser.find_by(uid:uid)
             response_bad_request("uid: #{uid} - not found.")
             return
         end
 
         begin
+            # get base64 string
             meta_data = data.match(/data:(image|application)\/(.{3,});base64,(.*)/)
             content_type = meta_data[2]
             encoded_image = meta_data[3]
 
-            if content_type == "jpeg" || content_type == "png"
-                # decode
-                decoded_image = Base64.strict_decode64(encoded_image)
-
-                file_name = "#{encoded_image[..20]}.#{content_type}"
-                dir_path = "#{Rails.root}/tmp/storage/images"
-
-                # tmp store
-                begin
-                    open("#{dir_path}/#{file_name}", 'wb') do |f|
-                        f.write(decoded_image)
-                    end
-                rescue => error
-                    response_internal_server_error(error)
-                    return
-                end
-
-                # upload to IPFS
-                ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
-                ipfs_address = ret.split(" ")[1]
-
-                # pin
-                system("ipfs pin add #{ipfs_address}")
-
-                # delete files on local
-                File.delete("#{dir_path}/#{file_name}")
-
-            else
+            # return 400 if un-support conntent type
+            unless content_type == "jpeg" || content_type == "png"
                 response_bad_request("Unsupport Content-Type")
                 return
             end
 
+            # decode image
+            decoded_image = Base64.strict_decode64(encoded_image)
+
+            file_name = "#{encoded_image[..20]}.#{content_type}"
+            dir_path = "#{Rails.root}/tmp/storage/images"
+
+            # store tmp file
+            begin
+                open("#{dir_path}/#{file_name}", 'wb') do |f|
+                    f.write(decoded_image)
+                end
+            rescue => error
+                response_internal_server_error(error)
+                return
+            end
+
+            # upload to IPFS
+            ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
+            ipfs_address = ret.split(" ")[1]
+
+            # pin
+            system("ipfs pin add #{ipfs_address}")
+
+            # delete tmp files
+            File.delete("#{dir_path}/#{file_name}")
+
+
+            # ===== issue token =====
             # load wallet
             wallet_id = TapUser.find_by(uid: uid).wallet_id
             wallet = Glueby::Wallet.load(wallet_id)
