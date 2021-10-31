@@ -4,11 +4,14 @@ class V2::TokensController < ApplicationController
 
     @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
 
-    def get_info(token_id)
-        token = TapTokenV2.find_by(token_id:token_id)
-        tx_id = token.tx_id
+    def get_info(tap_token)
+        # get params
+        token_id = tap_token.token_id
+        tx_id = tap_token.tx_id
+        created_at = tap_token.created_at
+
+        # get ipfs address
         ipfs_address = get_data_from_tx(tx_id)
-        created_at = token.created_at
 
         # get from IPFS
         system("ipfs get --output=#{Rails.root}/tmp/storage/images #{ipfs_address}")
@@ -22,42 +25,36 @@ class V2::TokensController < ApplicationController
         # delete file
         File.delete("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
 
-        response = {"token_id": token_id, "tx_id": tx_id, "ipfs_address": ipfs_address, "token_data": base64_str, "created_at": created_at}
+        response = { token_id: token_id, tx_id: tx_id, ipfs_address: ipfs_address, token_data: base64_str, created_at: created_at}
         return response
-
     end
 
     # get list of token
     def index
-        response = ""
-        response_token_list = []
-        # limit ari
-        if !params[:limit].blank?
-            for t in TapTokenV2.last(params[:limit])
-                response_token_list.push(get_info(t.token_id))
-            end
-
-            response = response_token_list
+        response = []
 
         # token_id sitei
-        elsif !params[:token_id].blank?
-            token_id = params[:token_id]
-            t = TapTokenV2.find_by(token_id:token_id)
-
-            unless t
+        if !params[:token_id].blank?
+            # get token
+            tap_token = TapTokenV2.find_by(token_id:params[:token_id])
+            # 404
+            if tap_token.nil?
                 response_bad_request("token_id: #{token_id} - not found.")
                 return
             end
+            response = get_info(tap_token)
 
-            response = get_info(t.token_id)
-
-        # nanimonai
-        else
-            for t in TapTokenV2.all
-                response_token_list.push(get_info(t.token_id))
+        # limit
+        elsif !params[:limit].blank?
+            for tap_token in TapTokenV2.last(params[:limit])
+                response.push(get_info(tap_token))
             end
-            response = response_token_list
 
+        # all
+        else
+            for tap_token in TapTokenV2.all
+                response.push(get_info(tap_token))
+            end
         end
 
         response_success('v2/tokens', 'index', response)
@@ -133,11 +130,11 @@ class V2::TokensController < ApplicationController
             generate
 
             # save to db
-            taptoken = TapTokenV2.create(token_id: token_id, tx_id: tx_id)
-            taptoken.save
+            tap_token = TapTokenV2.create(token_id: token_id, tx_id: tx_id)
+            tap_token.save
 
             # response
-            response = get_info(token_id)
+            response = get_info(tap_token)
             response_success('v2/tokens', 'create', response)
 
         # TPC不足をレスキューするよ
@@ -245,8 +242,8 @@ class V2::TokensController < ApplicationController
             generate
 
             # destroy from db
-            taptoken = TapTokenV2.find_by(token_id: token_id)
-            taptoken.destroy
+            tap_token = TapTokenV2.find_by(token_id: token_id)
+            tap_token.destroy
 
             # response
             response = { token_id: token_id, tx_id: tx.txid }
