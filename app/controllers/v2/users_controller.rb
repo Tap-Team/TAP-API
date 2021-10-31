@@ -1,10 +1,11 @@
-class UsersController < ApplicationController
+class V2::UsersController < ApplicationController
 
     @@client = Google::Apis::IdentitytoolkitV3::IdentityToolkitService.new
     @@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
         json_key_io: File.open("./SERVICE_ACCOUNT.json"),
         scope: 'https://www.googleapis.com/auth/identitytoolkit'
     )
+
     # check auth
     def check_auth(uid)
         request = Google::Apis::IdentitytoolkitV3::GetAccountInfoRequest.new(local_id: [uid])
@@ -17,53 +18,54 @@ class UsersController < ApplicationController
         end
     end
 
+    # get info
+    def get_info(uid)
+        # get user
+        tapuser = TapUser.find_by(uid:uid)
+
+        # 404
+        if tapuser.nil?
+            response_bad_request("uid: #{uid} - not found.")
+            return nil
+        end
+
+        # get params
+        wallet_id = tapuser.wallet_id
+        created_at = tapuser.created_at
+
+        # get balance and get token_ids
+        wallet = Glueby::Wallet.load(wallet_id)
+        balances = wallet.balances
+        token_ids = balances.keys.reject(&:blank?)
+
+        response =  { uid: uid, wallet_id: wallet_id, tokens: token_ids, created_at: created_at }
+        return response
+    end
+
 
     # get list of user
     def index
-        # limit ari
-        if !params[:limit].blank?
-            num = params[:limit]
-            response = TapUser.last(num)
+        response = []
 
         # uid sitei
-        elsif !params[:uid].blank?
-            uid = params[:uid]
+        if !params[:uid].blank?
+            response = get_info(params[:uid])
 
-            unless TapUser.find_by(uid:uid)
-                response_bad_request("uid: #{uid} - not found.")
-                return
+        # limit
+        elsif !params[:limit].blank?
+            for u in TapUser.last(params[:limit])
+                response.push(get_info(u.uid))
             end
 
-            begin
-                tapuser = TapUser.find_by(uid:uid)
-                wallet_id = tapuser.wallet_id
-                created_at = tapuser.created_at
-                updated_at = tapuser.updated_at
-
-                # get balance
-                wallet_id = TapUser.find_by(uid: uid).wallet_id
-                wallet = Glueby::Wallet.load(wallet_id)
-                balances = wallet.balances
-
-                # token nomi tyuusyutu
-                token_ids = balances.keys.reject(&:blank?)
-
-                # zyouhou morau
-                response_tokens = []
-                for token_id in token_ids
-                    response_tokens.push(TapToken.find_by(token_id:token_id))
-                end
-
-                # response
-                response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: response_tokens }
-
-            rescue => error
-                response_internal_server_error(error)
-            end
-
-        # nanimo nai
+        # all
         else
-            response = TapUser.all
+            for u in TapUser.all
+                response.push(get_info(u.uid))
+            end
+        end
+
+        if response.nil?
+            return
         end
 
         response_success('users','index',response)
