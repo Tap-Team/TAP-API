@@ -7,22 +7,22 @@ class V2::TokensController < ApplicationController
     def get_info(token_id)
         token = TapTokenV2.find_by(token_id:token_id)
         tx_id = token.tx_id
-        data = get_data_from_tx(tx_id)
+        ipfs_address = get_data_from_tx(tx_id)
         created_at = token.created_at
 
         # get from IPFS
-        system("ipfs get --output=#{Rails.root}/tmp/storage/images #{data}")
+        system("ipfs get --output=#{Rails.root}/tmp/storage/images #{ipfs_address}")
 
         # get image binary
-        binary_data = File.read("#{Rails.root}/tmp/storage/images/#{data}")
+        image_binary = File.read("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
 
         # base64 encode
-        base64 = "data:image/png;base64," + Base64.strict_encode64(binary_data)
+        base64_str = "data:image/png;base64," + Base64.strict_encode64(image_binary)
 
         # delete file
-        File.delete("#{Rails.root}/tmp/storage/images/#{data}")
+        File.delete("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
 
-        response = {"token_id": token_id, "tx_id": tx_id, "ipfs_address": data, "base64": base64, "created_at": created_at}
+        response = {"token_id": token_id, "tx_id": tx_id, "ipfs_address": ipfs_address, "token_data": base64_str, "created_at": created_at}
         return response
 
     end
@@ -67,10 +67,10 @@ class V2::TokensController < ApplicationController
     # issue token
     def create
         uid = params[:uid]
-        data = params[:data]    # base64 image
+        data = params[:token_data]    # base64 image
 
         # image's IPFS address
-        daha_hash = ""
+        ipfs_address = ""
 
 
         unless TapUser.find_by(uid:uid)
@@ -102,7 +102,7 @@ class V2::TokensController < ApplicationController
 
                 # upload to IPFS
                 ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
-                data_hash = ret.split(" ")[1]
+                ipfs_address = ret.split(" ")[1]
 
                 # pin
                 system("ipfs pin add #{data_hash}")
@@ -125,7 +125,7 @@ class V2::TokensController < ApplicationController
             wallet = Glueby::Wallet.load(wallet_id)
 
             # issue NFT
-            tokens = Glueby::Contract::Token.issue_tap_nft(wallet: wallet, prefix: '', content: data_hash)
+            tokens = Glueby::Contract::Token.issue_tap_nft(wallet: wallet, prefix: '', content: ipfs_address)
             token_id = 'c3' + tokens[0].color_id.payload.bth
             tx_id = tokens[1].txid
 
@@ -137,10 +137,8 @@ class V2::TokensController < ApplicationController
             taptoken.save
 
             # response
-                # TODO:レスポンス何にするかは検討中
-            # taptoken = TapTokenV2.find_by(token_id:token_id)
-            ret = Glueby::Internal::RPC.client.getrawtransaction(tx_id, 1)
-            response_success('v2/tokens', 'create', ret)
+            response = get_info(token_id)
+            response_success('v2/tokens', 'create', response)
 
         # TPC不足をレスキューするよ
         rescue Glueby::Contract::Errors::InsufficientFunds
@@ -198,7 +196,7 @@ class V2::TokensController < ApplicationController
             generate
 
             # response
-            response = { token_id: token_id, txid: tx.txid}
+            response = { token_id: token_id, tx_id: tx.txid}
             response_success('v2/tokens', 'update', response)
 
 
@@ -251,7 +249,7 @@ class V2::TokensController < ApplicationController
             taptoken.destroy
 
             # response
-            response = { token_id: token_id, txid: tx.txid }
+            response = { token_id: token_id, tx_id: tx.txid }
             response_success('v2/tokens', 'destroy', response)
 
 
