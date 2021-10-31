@@ -19,19 +19,11 @@ class V2::UsersController < ApplicationController
     end
 
     # get info
-    def get_info(uid)
-        # get user
-        tapuser = TapUser.find_by(uid:uid)
-
-        # 404
-        if tapuser.nil?
-            response_bad_request("uid: #{uid} - not found.")
-            return nil
-        end
-
+    def get_info(tap_user)
         # get params
-        wallet_id = tapuser.wallet_id
-        created_at = tapuser.created_at
+        uid = tap_user.uid
+        wallet_id = tap_user.wallet_id
+        created_at = tap_user.created_at
 
         # get balance and get token_ids
         wallet = Glueby::Wallet.load(wallet_id)
@@ -49,23 +41,26 @@ class V2::UsersController < ApplicationController
 
         # uid sitei
         if !params[:uid].blank?
-            response = get_info(params[:uid])
+            # get user
+            tap_user = TapUser.find_by(uid:params[:uid])
+            # 404
+            if tap_user.nil?
+                response_bad_request("uid: #{uid} - not found.")
+                return
+            end
+            response = get_info(tap_user)
 
         # limit
         elsif !params[:limit].blank?
-            for u in TapUser.last(params[:limit])
-                response.push(get_info(u.uid))
+            for tap_user in TapUser.last(params[:limit])
+                response.push(get_info(tap_user))
             end
 
         # all
         else
-            for u in TapUser.all
-                response.push(get_info(u.uid))
+            for tap_user in TapUser.all
+                response.push(get_info(tap_user))
             end
-        end
-
-        if response.nil?
-            return
         end
 
         response_success('users','index',response)
@@ -92,10 +87,12 @@ class V2::UsersController < ApplicationController
             wallet = Glueby::Wallet.create
 
             # save to db
-            tapuser = TapUser.create(uid:uid, wallet_id:wallet.id)
-            tapuser.save
+            tap_user = TapUser.create(uid:uid, wallet_id:wallet.id)
+            tap_user.save
 
-            response_success('users','create')
+            # response
+            response = get_info(tap_user)
+            response_success('users','create', response)
 
         rescue => error
             response_internal_server_error(error)
@@ -116,12 +113,14 @@ class V2::UsersController < ApplicationController
 
         begin
             # search from db
-            tapuser = TapUser.find_by(uid: uid)
+            tap_user = TapUser.find_by(uid: uid)
 
             # update db
-            tapuser.update(wallet_id: wallet_id)
+            tap_user.update(wallet_id: wallet_id)
 
-            response_success('users','update')
+            # response
+            response = get_info(tap_user)
+            response_success('users','update', response)
 
         rescue => error
             response_internal_server_error(error)
@@ -141,11 +140,12 @@ class V2::UsersController < ApplicationController
 
         begin
             # search from db
-            tapuser = TapUser.find_by(uid: uid)
+            tap_user = TapUser.find_by(uid: uid)
 
             # delete from db
-            tapuser.destroy
+            tap_user.destroy
 
+            # response
             response_success('users','destroy')
 
         rescue => error
