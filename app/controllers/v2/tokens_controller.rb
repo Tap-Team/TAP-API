@@ -104,6 +104,14 @@ class V2::TokensController < ApplicationController
             ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
             ipfs_address = ret.split(" ")[1]
 
+
+
+
+            # TODO: ここで衝突の判定を取りたい。そのためにそれ用のDBを用意するのもあり。
+
+
+
+
             # pin
             system("ipfs pin add #{ipfs_address}")
 
