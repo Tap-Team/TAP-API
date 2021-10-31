@@ -4,4 +4,4 @@
 ipfs daemon
 
 # Rails
-rails s -e production
+/root/.rbenv/versions/3.0.1/bin/bundle exec /opt/rails/tap-api/bin/rails s -e production
