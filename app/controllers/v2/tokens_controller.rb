@@ -20,6 +20,7 @@ class V2::TokensController < ApplicationController
         image_binary = File.read("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
 
         # base64 encode
+            # FIXME: これpng固定だけど...
         base64_str = "data:image/png;base64," + Base64.strict_encode64(image_binary)
 
         # delete file
@@ -111,12 +112,7 @@ class V2::TokensController < ApplicationController
                 response_bad_request("Unsupport Content-Type")
                 return
             end
-        rescue => error
-            response_internal_server_error(error)
-            return
-        end
 
-        begin
             # load wallet
             wallet_id = TapUser.find_by(uid: uid).wallet_id
             wallet = Glueby::Wallet.load(wallet_id)

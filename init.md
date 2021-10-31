@@ -4,6 +4,7 @@
 2. bundle install
 3. run [Glueby's init process](https://github.com/chaintope/glueby#setup-for-ruby-on-rails-application-development)
 4. run `rails init:create`
+5. mkdir `tmp/storage/images`
 
 
 ## reset
