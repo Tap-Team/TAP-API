@@ -77,7 +77,7 @@ namespace :init do
         `rails g glueby:contract:block_syncer`
 
         puts "=== db:reset ==="
-        `rails db:reset`
+        `rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1`
 
         puts "=== db:migrate ==="
         Rake::Task['db:migrate'].execute
