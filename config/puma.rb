@@ -19,6 +19,6 @@ plugin :tmp_restart
 
 # for nginx
 # コメントアウト
-# port ENV.fetch("PORT") { 3000 }
+port ENV.fetch("PORT") { 3000 }
 # socketの設定
-bind "unix://#{Rails.root}/tmp/sockets/puma.sock"
+# bind "unix://#{Rails.root}/tmp/sockets/puma.sock"
