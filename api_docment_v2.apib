@@ -1,0 +1,305 @@
+FORMAT: 1A
+HOST: https://tap-api.shmn7iii.net/v2
+
+# Tap API Document [v2]
+
+## About
+**REST API for [Tap!](https://tap.shmn7iii.net)**
+
+Tap! is a service that makes publishing NFTs easier, more convenient, and more understandable, with the goal of lowering the barriers to NFTs, making them more accessible, and promoting their use in the general public, thereby further developing the NFT industry.
+
+This service was created within the "Challecara", and its actual use is yet to be determined. Also, we do not guarantee the tokens. For more information, please refer to the Terms of Use and Privacy Policy. -  Tap! Team.
+
+[[GitHub] Tap-Team/tap-api](https://github.com/Tap-Team/tap-api)
+
+## Usage
+REST APIのイメージで作ってるからその感じで。
+
+# Group TapUser
+### 一覧 [GET /users{?limit}]
+登録されているユーザーの一覧を返す。
+
+?limitで取得数の指定が可能。
+
++ Parameters
+    + limit: `5` (optional, int) - 取得ユーザー数。指定がない場合は全てのユーザーを返す。
+
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! users#index",
+  "data": [
+    {
+      "uid": "init",
+      "wallet_id": "cd9a33b64ec166b4d9f1480b3b539943",
+      "tokens": [
+
+      ],
+      "created_at": "2021-10-31T02:49:23.720Z"
+    },
+    {
+      "uid": "testuid",
+      "wallet_id": "29acd46d4a9216af943f87c39d5d85c1",
+      "tokens": [
+        "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3"
+      ],
+      "created_at": "2021-10-31T02:49:26.112Z"
+    }
+  ]
+}
+        ```
+
+### 情報取得 [GET /users/{uid}]
+指定ユーザー単体の情報を返す。
+
++ Parameters
+    + uid: `testuid` (required, string) - Firabase Auth's uid.
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! users#index",
+  "data": {
+    "uid": "testuid",
+    "wallet_id": "29acd46d4a9216af943f87c39d5d85c1",
+    "tokens": [
+      "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3"
+    ],
+    "created_at": "2021-10-31T02:49:26.112Z"
+  }
+}
+        ```
+
+
+### 登録 [POST /users]
+ユーザーの作成。Firebase Authに存在するuidでのみ作成可能。
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "testuid"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! users#index",
+  "data": {
+    "uid": "testuid",
+    "wallet_id": "29acd46d4a9216af943f87c39d5d85c1",
+    "tokens": [
+      "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3"
+    ],
+    "created_at": "2021-10-31T02:49:26.112Z"
+  }
+}
+        ```
+
+
+### 更新 [PUT /users/{uid} ]
+ユーザーを更新する。
+
+::: note
+## Note
+確実に使い所ありません。デバッグ用です。実はデバッグもしてません。
+:::
+
++ Parameters
+    + uid: `testuid` (required, string) - Firabase Auth's uid.
+
+
++ Request (application/json)
+	+ Body
+        ```
+        {
+            "uid": "testuid",
+            "wallet_id": "876rtdfcgvhbjki8765retrdfcvgbhjkioi876"
+        }
+        ```
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! users#index",
+  "data": {
+    "uid": "testuid",
+    "wallet_id": "29acd46d4a9216af943f87c39d5d85c1",
+    "tokens": [
+      "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3"
+    ],
+    "created_at": "2021-10-31T02:49:26.112Z"
+  }
+}
+        ```
+
+
+### 削除 [DELETE /users/{uid} ]
+ユーザーを削除する。トークンは燃やされない。
+
++ Parameters
+    + uid: `testuid` (required, string) - Firabase Auth's uid.
+
++ Response 200
+    + Body
+        ```
+        {
+            "status": "200",
+            "message": "Success! users#delete",
+            "data": "No contents"
+        }
+        ```
+
+
+# Group TapToken
+トークンに関するリソース
+
+### 一覧 [GET /tokens{?limit}]
+発行されたトークンの一覧を取得する。
+
++ Parameters
+    + limit: `5` (optional, int) - 取得トークン量。指定がない場合は全てのトークンを返す。
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! v2/tokens#index",
+  "data": [
+    {
+      "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3",
+      "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e6b",
+      "ipfs_address": "QmUvpKQW72Sy1oXPoDpJVXgUjF6yXK4GzqMTtSdzK9JcFG",
+      "token_data": "data:image/png;base64,ivfwaue~~~",
+			"created_at": "2021-10-31T02:57:17.665Z"
+    },
+		{
+      "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea2",
+      "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e62",
+      "ipfs_address": "QmUvpKQW72Sy1oXPoDpJVXgUjF6yXK4GzqMTtSdzK9JcF2",
+      "token_data": "data:image/png;base64,ivfwaue~~~",
+			"created_at": "2021-10-31T02:57:20.665Z"
+    }
+  ]
+}
+        ```
+
+### 情報取得 [GET /tokens/{token_id}]
+指定トークンの情報を取得する。
+
++ Parameters
+    + token_id: `c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3` (required, string) - Token's id
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! v2/tokens#index",
+  "data": {
+    "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3",
+    "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e6b",
+    "ipfs_address": "QmUvpKQW72Sy1oXPoDpJVXgUjF6yXK4GzqMTtSdzK9JcFG",
+    "token_data": "data:image/png;base64,ivfwaue~~~",
+		"created_at": "2021-10-31T02:57:17.665Z"
+  }
+}
+        ```
+
+
+### 発行 [POST /tokens]
+トークンを発行する。
+
++ Request (application/json)
+	+ Body
+        ```
+{
+  "uid": "testuid",
+  "token_data": "base64_image_string"
+}
+        ```
+
++ Response 200
+    + Body
+        ```
+{
+  "status": 200,
+  "message": "Success! v2/tokens#create",
+  "data": {
+    "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea3",
+    "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e6b",
+    "ipfs_address": "QmUvpKQW72Sy1oXPoDpJVXgUjF6yXK4GzqMTtSdzK9JcFG",
+    "token_data": "data:image/png;base64,ivfwaue~~~",
+		"created_at": "2021-10-31T02:57:17.665Z"
+  }
+}
+        ```
+
+
+### 移転 [PUT /tokens/{token_id}]
+トークンを移転する。
+
++ Parameters
+    + token_id: `c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea2` (required, string) - Token's id
+
++ Request (application/json)
+	+ Body
+        ```
+{
+  "sender_uid": "testuid",
+  "receiver_uid": "testuid2"
+}
+        ```
+
++ Response 200
+    + Body
+        ```
+{
+  "status": "200",
+  "message": "Success! tokens#update",
+  "data": {
+    "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea2",
+    "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e6b"
+  }
+}
+        ```
+
+
+### 焼却 [DELETE /tokens/{token_id}]
+トークンを焼却する。
+
++ Parameters
+    + token_id: `c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea2` (required, string) - Token's id
+
++ Request (application/json)
+	+ Body
+        ```
+{
+  "uid": "testuid"
+}
+        ```
+
++ Response 200
+    + Body
+        ```
+{
+  "status": "200",
+  "message": "Success! users#destroy",
+  "data": {
+    "token_id": "c3cdff355d7b005285add6fdcd6cd247fd281905a4b38f664742eb0ff695d31ea2",
+    "tx_id": "77ac0ae756e4d577a2f73bf60e9bd0a66f79a05af84c2de18a03a9a96cfb1e6b"
+  }
+}
+        ```
+
