@@ -1,7 +1,5 @@
 class DebugsController < ApplicationController
 
-    @@IPFS = IPFS::Connection.new
-
     def decode_base64_image
         data = params[:data]
 
@@ -31,7 +29,7 @@ class DebugsController < ApplicationController
             end
 
             # upload to IPFS
-            nodes = @@IPFS.add(Dir.new(dir_path))
+            # nodes = @@IPFS.add(Dir.new(dir_path))
 
             # nodes[0] = ~~.png (file)
             # nodes[1] = ~~~ (directory)
