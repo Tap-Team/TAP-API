@@ -1,5 +1,3 @@
-require 'Glueby'
-
 module GluebyTap
     module Contract
         module Token
