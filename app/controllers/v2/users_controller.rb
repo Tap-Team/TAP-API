@@ -1,4 +1,22 @@
-class V2::UsersController < ApplicationController
+class UsersController < ApplicationController
+
+    @@client = Google::Apis::IdentitytoolkitV3::IdentityToolkitService.new
+    @@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+        json_key_io: File.open("./SERVICE_ACCOUNT.json"),
+        scope: 'https://www.googleapis.com/auth/identitytoolkit'
+    )
+    # check auth
+    def check_auth(uid)
+        request = Google::Apis::IdentitytoolkitV3::GetAccountInfoRequest.new(local_id: [uid])
+        account = @@client.get_account_info(request)
+
+        unless account.users.nil?
+            return true
+        else
+            return false
+        end
+    end
+
 
     # get list of user
     def index
@@ -30,8 +48,14 @@ class V2::UsersController < ApplicationController
                 # token nomi tyuusyutu
                 token_ids = balances.keys.reject(&:blank?)
 
+                # zyouhou morau
+                response_tokens = []
+                for token_id in token_ids
+                    response_tokens.push(TapToken.find_by(token_id:token_id))
+                end
+
                 # response
-                response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: token_ids }
+                response =  { uid: uid, wallet_id: wallet_id, created_at: created_at, updated_at: updated_at, tokens: response_tokens }
 
             rescue => error
                 response_internal_server_error(error)
@@ -52,6 +76,12 @@ class V2::UsersController < ApplicationController
 
         if TapUser.find_by(uid:uid)
             response_bad_request("uid: #{uid} - already registerd.")
+            return
+        end
+
+        # firebase auth
+        unless check_auth(uid)
+            response_bad_request("uid: #{uid} - doesn't exist on auth.")
             return
         end
 
