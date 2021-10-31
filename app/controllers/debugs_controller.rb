@@ -1,5 +1,134 @@
 class DebugsController < ApplicationController
 
+    def decode_base64_image
+        data = params[:data]
+
+        meta_data = data.match(/data:(image|application)\/(.{3,});base64,(.*)/)
+        content_type = meta_data[2]
+        encoded_image = meta_data[3]
+
+        if content_type == "jpeg" || content_type == "png"
+            decoded_image = Base64.strict_decode64(encoded_image)
+
+            dir_name = "#{encoded_image[..20]}"
+            file_name = "#{dir_name}.#{content_type}"
+
+            begin
+                # mkdir
+                dir_path = "#{Rails.root}/storage/images/#{dir_name}"
+                Dir.mkdir(dir_path)
+
+                # write image
+                open("#{dir_path}/#{file_name}", 'wb') do |f|
+                    f.write(decoded_image)
+                end
+
+            rescue => error
+                response_internal_server_error(error)
+                return
+            end
+
+            # upload to IPFS
+            # nodes = @@IPFS.add(Dir.new(dir_path))
+
+            # nodes[0] = ~~.png (file)
+            # nodes[1] = ~~~ (directory)
+            ret = {"node.name": nodes[0].name, "node.hash": nodes[0].hash}
+
+            response_success('debugs', 'decode_base64_image', ret)
+
+        else
+            response_bad_request("Unsupport Content-Type")
+        end
+    end
+
+    def focnft
+        uid = "testuid"
+
+        begin
+            wallet_id = TapUser.find_by(uid: uid).wallet_id
+            wallet = Glueby::Wallet.load(wallet_id)
+
+            content = "shimamura"
+
+            # issue NFT
+            tokens = Glueby::Contract::Token.issue_tap_nft(wallet: wallet, prefix: '', content: content)
+            token_id = 'c3' + tokens[0].color_id.payload.bth
+            tx_id = tokens[1].txid
+
+            # generate block
+            generate
+
+            # save to db
+            taptoken = TapToken.create(token_id: token_id, tx_id: tx_id)
+            taptoken.save
+
+            # response
+                # TODO:レスポンス何にするかは検討中
+            # taptoken = TapToken.find_by(token_id:token_id)
+            ret = Glueby::Internal::RPC.client.getrawtransaction(tx_id, 1)
+            response_success('tokens', 'create', ret)
+
+        # TPC不足をレスキューするよ
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            pay2user(wallet_id, 1_000_000_000)
+            retry
+
+        # rescue => error
+        #     response_internal_server_error(error)
+        end
+    end
+
+
+    def get_data_from_tx
+        txid = params[:tx_id]
+
+        tx_payload = Glueby::Internal::RPC.client.getrawtransaction(txid, 0)
+        txx = Tapyrus::Tx.parse_from_payload(tx_payload.htb)
+        data = txx.outputs[1].script_pubkey.op_return_data.bth
+        data = [data].pack("H*")
+
+        response_success('tokens', 'create', data)
+    end
+
+
+
+    # def timestamp_test
+    #     uid = "testuid"
+
+    #     begin
+    #         wallet_id = TapUser.find_by(uid: uid).wallet_id
+    #         wallet = Glueby::Wallet.load(wallet_id)
+
+    #         # 16進数に直してコンテンツとする
+    #         content = "shimamura".unpack("H*")[0]
+
+    #         timestamp = Glueby::Contract::Timestamp.new(wallet: wallet, content: content, digest: :none)
+    #         tx = timestamp.save!
+    #         puts "transaction.id = #{tx.txid}"
+
+    #         txid = tx.txid
+    #         tx_payload = Glueby::Internal::RPC.client.getrawtransaction(txid, 0)
+    #         tx = Tapyrus::Tx.parse_from_payload(tx_payload.htb)
+    #         data = tx.outputs[0].script_pubkey.op_return_data.bth
+
+    #         # 取得したデータ（16進数）といれたデータ（16進数に変換）が一致するかどうか
+    #         pp "shimamura".unpack("H*")[0] == data
+
+    #         # これで復元
+    #         pp [data].pack("H*")
+
+
+    #         ret = Glueby::Internal::RPC.client.getrawtransaction(txid, 1)
+    #         response_success('tokens', 'create', ret)
+
+    #         # TPC不足をレスキューするよ
+    #     rescue Glueby::Contract::Errors::InsufficientFunds
+    #         pay2user(wallet_id, 1_000_000_000)
+    #         retry
+    #     end
+    # end
+
     # def firestore
     #     service_account = "./SERVICE_ACCOUNT.json"
     #     client = Google::Cloud::Firestore.new(project_id: "tap-f4f38" ,credentials: service_account)
@@ -97,7 +226,7 @@ class DebugsController < ApplicationController
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
 
-        `rails glueby:contract:block_syncer:start`
+        `rails glueby:block_syncer:start`
 
         data = "block_id:#{block}"
         response_success('debugs','generatetoaddress',data)
@@ -139,5 +268,28 @@ class DebugsController < ApplicationController
         address = wallet.internal_wallet.receive_address
         data = address
         response_success('debugs','getaddress',data)
+    end
+
+    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
+
+    def pay2user(wallet_id, ammount)
+        begin
+            sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+            receiver = Glueby::Wallet.load(wallet_id)
+            address = receiver.internal_wallet.receive_address
+            tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
+        rescue Glueby::Contract::Errors::InsufficientFunds
+            generate
+            retry
+        end
+    end
+
+    def generate
+        wallet = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        receive_address = wallet.internal_wallet.receive_address
+        count = 1
+        authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
+        block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
+        `rails glueby:contract:block_syncer:start`
     end
 end
