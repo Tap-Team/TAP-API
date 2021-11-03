@@ -134,7 +134,7 @@ class V2::TokensController < ApplicationController
 
         # TPC不足をレスキューするよ
         rescue Glueby::Contract::Errors::InsufficientFunds
-            pay2user(wallet_id, 1_000_000_000)
+            pay2user(wallet_id, 10_000)
             retry
 
         rescue => error
