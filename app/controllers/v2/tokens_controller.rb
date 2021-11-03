@@ -275,7 +275,7 @@ class V2::TokensController < ApplicationController
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
-        `rails glueby:block_syncer:start`
+        system("rails glueby:block_syncer:start")
     end
 
     def get_data_from_tx(tx_id)
