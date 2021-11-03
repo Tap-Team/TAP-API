@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Tapyrus-Core
+docker start 70ca731e4c53
+
 # IPFS
 ipfs daemon &
 
