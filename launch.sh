@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Tapyrus-Core
+systemctl start docker
 docker start 70ca731e4c53
 
 # IPFS
