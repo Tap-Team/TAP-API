@@ -1,19 +1,14 @@
 ## install
 
 1. git clone
-2. bundle install
-3. run [Glueby's init process](https://github.com/chaintope/glueby#setup-for-ruby-on-rails-application-development)
-4. run `rails init:create`
-5. mkdir `tmp/storage/images`
-
+2. docker build: `docker-compose build`
+3. docker up: `docker-compose up -d`
+4. run init process: `rails init:create`
 
 ## reset
-1. shutdown rails app
-2. run `rails init:reset`
-3. run `rails init:create`
 
-
-## reset (production)
-1. shutdown rails app
-2. run `rails init:reset RAILS_ENV=production`
-3. run `rails init:create RAILS_ENV=production`
+1. docker down: `docker-compose down`
+2. docker build: `docker-compose build`
+3. docker up: `docker-compose up -d`
+4. reset database: `rails db:reset`
+5. run init process: `rails init:create`
