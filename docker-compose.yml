@@ -17,6 +17,12 @@ services:
       - public-data:/tap-api/public
       - tmp-data:/tap-api/tmp
       - log-data:/tap-api/log
+    command: >
+      sh -c "
+        ipfs daemon &
+        rm tmp/pids/server.pid
+        rails s
+      "
     depends_on:
       - tapyrusd
       - ipfs
@@ -29,12 +35,6 @@ services:
       - tapyrus:/var/lib/tapyrus
     ports:
       - "12381:12381"
-  ipfs:
-    image: ipfs/go-ipfs:latest
-    ports:
-      - "5001:5001"
-    volumes:
-      - tmp-data:/tap-api/tmp
 volumes:
   tapyrus:
   public-data:
