@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get 'debugs/focnft', to: 'debugs#focnft'
   get 'debugs/getdata', to: 'debugs#get_data_from_tx'
   post 'debugs/decode_base64_image', to: 'debugs#decode_base64_image'
+  get 'debugs/docker_ipfs', to: 'debugs#docker_ipfs'
 
 
   # ========================================

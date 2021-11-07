@@ -1,5 +1,10 @@
 class DebugsController < ApplicationController
 
+    def docker_ipfs
+        ret = `ipfs --version `
+        response_success('debugs', 'docker_ipfs', ret)
+    end
+
     def decode_base64_image
         data = params[:data]
 
