@@ -31,6 +31,10 @@ services:
       - "12381:12381"
   ipfs:
     image: ipfs/go-ipfs:latest
+    ports:
+      - "5001:5001"
+    volumes:
+      - tmp-data:/tap-api/tmp
 volumes:
   tapyrus:
   public-data:
