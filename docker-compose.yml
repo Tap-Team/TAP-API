@@ -25,7 +25,6 @@ services:
       "
     depends_on:
       - tapyrusd
-      - ipfs
   tapyrusd:
     image: tapyrus/tapyrusd:edge
     environment:
