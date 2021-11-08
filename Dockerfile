@@ -16,6 +16,7 @@ WORKDIR /tap-api
 COPY Gemfile /tap-api/Gemfile
 COPY Gemfile.lock /tap-api/Gemfile.lock
 
-RUN bundle install
+RUN gem install bundler:2.2.24 \
+ && bundle install
 
 COPY . /tap-api
