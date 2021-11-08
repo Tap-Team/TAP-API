@@ -4,34 +4,31 @@ namespace :init do
     desc "初期処理"
     task :create => :environment do |task, args|
 
-        # === create init user ===
+    # === create init user ===
 
-            # wallet
+        # wallet
         wallet = Glueby::Wallet.create
         address = wallet.internal_wallet.receive_address
 
-            # db
+        # db
         tapuser = TapUser.create(uid: 'init', wallet_id: wallet.id)
         tapuser.save
 
-            # .env
-        File.open("./.env", mode = "w"){|f|
-            f.write("DEFAULT_RECIEVE_WALLET = \'#{wallet.id}\'")
-        }
-
-            # generate
+        # generate
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, address, authority_key)
         `rails glueby:contract:block_syncer:start`
 
-        # === create test user ===
+    # === create test user ===
+
         wallet_testuid = Glueby::Wallet.create
         tapuser_testuid = TapUser.create(uid: 'testuid', wallet_id: wallet_testuid.id)
         tapuser_testuid.save
 
 
-        # === output ===
+    # === output ===
+
         puts ""
         puts "=== init ==="
         puts "wallet.id: #{wallet.id}"
@@ -42,22 +39,21 @@ namespace :init do
         puts "wallet.id: #{wallet_testuid.id}"
         puts ""
         puts "block count: #{Glueby::Internal::RPC.client.getblockcount}"
-
-        puts ""
-        puts "=================================CAUTION================================="
-        puts "The .env file has been generated, but rails has not loaded it yet."
-        puts "Restart the rails app for the changes or initialization to take effect."
-        puts ""
-        puts "If you use systemd, run `systemctl restart <app-name>`"
-        puts ""
     end
 
     desc "initの残高確認"
     task :getbalance => :environment do |task, args|
-        wallet_id = ENV['DEFAULT_RECIEVE_WALLET']
-        wallet = Glueby::Wallet.load(wallet_id)
+        wallet = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
         puts wallet.balances
     end
+
+
+
+
+
+    # #############
+    # === 非推奨 ===
+    # #############
 
     desc "初期化"
     task :reset => :environment do |task, args|

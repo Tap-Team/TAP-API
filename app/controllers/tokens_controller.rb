@@ -2,7 +2,6 @@ require "google/cloud/storage"
 
 class TokensController < ApplicationController
 
-    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
 
     storage = Google::Cloud::Storage.new(
         project_id: "tap-f4f38",
@@ -233,7 +232,7 @@ class TokensController < ApplicationController
 
     def pay2user(wallet_id, ammount)
         begin
-            sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+            sender = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
             receiver = Glueby::Wallet.load(wallet_id)
             address = receiver.internal_wallet.receive_address
             tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
@@ -244,7 +243,7 @@ class TokensController < ApplicationController
     end
 
     def generate
-        wallet = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        wallet = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
         receive_address = wallet.internal_wallet.receive_address
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
