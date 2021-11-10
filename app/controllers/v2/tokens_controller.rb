@@ -102,13 +102,11 @@ class V2::TokensController < ApplicationController
             ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
             ipfs_address = ret.split(" ")[1]
 
-
-
-
-            # TODO: ここで衝突の判定を取りたい。そのためにそれ用のDBを用意するのもあり。
-
-
-
+            # check IPFS conflict
+            if TapTokenV2.find_by(ipfs_address: ipfs_address)
+                response_conflict("Token create", "IPFS address conflicts. ADDRESS:#{ipfs_address}")
+                return
+            end
 
             # pin
             system("ipfs pin add #{ipfs_address}")
@@ -131,7 +129,7 @@ class V2::TokensController < ApplicationController
             generate
 
             # save to db
-            tap_token = TapTokenV2.create(token_id: token_id, tx_id: tx_id)
+            tap_token = TapTokenV2.create(token_id: token_id, tx_id: tx_id, ipfs_address: ipfs_address)
             tap_token.save
 
             # response
