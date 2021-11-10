@@ -10,11 +10,13 @@
 
 See http://tap-api.shmn7iii.net/v2
 
-## How to Build
+v1 is deprecated. Use v2. With v2, the file storaging system has changed from Firebase to IPFS, allowing you to issue full-on-chain NFTs.
 
-CentOS 7.9
+## How to set up
 
-### Install Docker & Docker Compose
+Recommended OS is CentOS 7.9.
+
+### dependencies
 
 Docker: latest
 Docker-compose: 1.29.2
@@ -30,7 +32,7 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 $ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
-### Setup data dir
+### setup data dir
 
 ```bash
 # git clone
@@ -47,7 +49,7 @@ sftp> cd tap-api
 sftp> put SERVICE_ACCOUNT.json
 ```
 
-### Build and Up
+### build and set up
 
 ```bash
 # docker-compose build
@@ -55,11 +57,7 @@ $ docker-compose build
 
 # docker-compose up
 $ docker-comopse up -d
-```
 
-### Run initial process
-
-```bash
 # database reset
 $ docker-compose exec rails rails db:reset
 
@@ -67,7 +65,17 @@ $ docker-compose exec rails rails db:reset
 $ docker-compose exec rails rails init:create
 ```
 
-## Reset all
+## How to use utils
+
+### issue_sample_tokens.sh
+
+For debug. This script issue tokens with images in `images` dir. **ONLY macOS**. **ONLY PNG IMAGE**.
+
+### restart.sh
+
+Down, git pull, build, and up.
+
+## How to RESET all data
 
 This process also involves **RESETTING Tapyrus's DATABASE**, so the blockchain will be initialized and all NFTs will be lost.
 
