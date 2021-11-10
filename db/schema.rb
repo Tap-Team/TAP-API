@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(version: 2021_10_31_024830) do
 
   create_table "tap_token_v2s", primary_key: "token_id", id: :string, force: :cascade do |t|
     t.string "tx_id"
+    t.string "ipfs_address"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
