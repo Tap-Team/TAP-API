@@ -20,8 +20,8 @@ class ApplicationController < ActionController::API
     end
 
     # 409 Conflict
-    def response_conflict(class_name)
-        render status: 409, pretty_json: { status: 409, message: "#{class_name.capitalize} Conflict" }
+    def response_conflict(class_name, data = "No contents")
+        render status: 409, pretty_json: { status: 409, message: "#{class_name.capitalize} Conflict", data: data }
     end
 
     # 500 Internal Server Error
