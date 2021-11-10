@@ -2,8 +2,6 @@ require "google/cloud/storage"
 
 class V2::TokensController < ApplicationController
 
-    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
-
     def get_info(tap_token)
         # get params
         token_id = tap_token.token_id
@@ -142,7 +140,7 @@ class V2::TokensController < ApplicationController
 
         # TPC不足をレスキューするよ
         rescue Glueby::Contract::Errors::InsufficientFunds
-            pay2user(wallet_id, 1_000_000_000)
+            pay2user(wallet_id, 10_000)
             retry
 
         rescue => error
@@ -267,7 +265,7 @@ class V2::TokensController < ApplicationController
 
     def pay2user(wallet_id, ammount)
         begin
-            sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+            sender = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
             receiver = Glueby::Wallet.load(wallet_id)
             address = receiver.internal_wallet.receive_address
             tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
@@ -278,12 +276,12 @@ class V2::TokensController < ApplicationController
     end
 
     def generate
-        wallet = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        wallet = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
         receive_address = wallet.internal_wallet.receive_address
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
-        `rails glueby:block_syncer:start`
+        system("rails glueby:block_syncer:start")
     end
 
     def get_data_from_tx(tx_id)

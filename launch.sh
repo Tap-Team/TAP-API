@@ -1,7 +1,13 @@
 #!/bin/sh
 
-# IPFS
-ipfs daemon &
+# docker down
+docker-compose down
 
-# Rails
-/root/.rbenv/versions/3.0.1/bin/bundle exec /opt/rails/tap-api/bin/rails s -e production
+# git pull
+git pull
+
+# docker build
+docker-compose build
+
+# docker up -d
+docker-compose up -d

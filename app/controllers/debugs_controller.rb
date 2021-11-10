@@ -1,5 +1,10 @@
 class DebugsController < ApplicationController
 
+    def docker_ipfs
+        ret = `ipfs --version `
+        response_success('debugs', 'docker_ipfs', ret)
+    end
+
     def decode_base64_image
         data = params[:data]
 
@@ -226,7 +231,7 @@ class DebugsController < ApplicationController
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
         block = Glueby::Internal::RPC.client.generatetoaddress(count, receive_address, authority_key)
 
-        `rails glueby:block_syncer:start`
+        system("rails glueby:block_syncer:start")
 
         data = "block_id:#{block}"
         response_success('debugs','generatetoaddress',data)
@@ -270,11 +275,9 @@ class DebugsController < ApplicationController
         response_success('debugs','getaddress',data)
     end
 
-    @@DEFAULT_RECIEVE_WALLET = ENV['DEFAULT_RECIEVE_WALLET']
-
     def pay2user(wallet_id, ammount)
         begin
-            sender = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+            sender = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
             receiver = Glueby::Wallet.load(wallet_id)
             address = receiver.internal_wallet.receive_address
             tx = Glueby::Contract::Payment.transfer(sender: sender, receiver_address: address, amount: ammount)
@@ -285,7 +288,7 @@ class DebugsController < ApplicationController
     end
 
     def generate
-        wallet = Glueby::Wallet.load(@@DEFAULT_RECIEVE_WALLET)
+        wallet = Glueby::Wallet.load(TapUser.find_by(uid:"init").wallet_id)
         receive_address = wallet.internal_wallet.receive_address
         count = 1
         authority_key = "cUJN5RVzYWFoeY8rUztd47jzXCu1p57Ay8V7pqCzsBD3PEXN7Dd4"
