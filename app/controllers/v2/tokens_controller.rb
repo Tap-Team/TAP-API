@@ -1,5 +1,3 @@
-require "google/cloud/storage"
-
 class V2::TokensController < ApplicationController
 
     def get_info(tap_token)
