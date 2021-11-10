@@ -72,7 +72,7 @@ class V2::UsersController < ApplicationController
         uid = params[:uid]
 
         if TapUser.find_by(uid:uid)
-            response_bad_request("uid: #{uid} - already registerd.")
+            response_conflict("User Create", "uid: #{uid} - already registerd.")
             return
         end
 
