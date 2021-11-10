@@ -1,18 +1,17 @@
-require "google/cloud/storage"
-
 class V2::TokensController < ApplicationController
 
     def get_info(tap_token)
         # get params
         token_id = tap_token.token_id
         tx_id = tap_token.tx_id
+        ipfs_address = tap_token.ipfs_address
         created_at = tap_token.created_at
 
-        # get ipfs address
-        ipfs_address = get_data_from_tx(tx_id)
-
-        # get from IPFS
-        system("ipfs get --output=#{Rails.root}/tmp/storage/images #{ipfs_address}")
+        # unless file exists on local
+        unless File.exist?("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
+            # get from IPFS
+            system("ipfs get --output=#{Rails.root}/tmp/storage/images #{ipfs_address}")
+        end
 
         # get image binary
         image_binary = File.read("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
@@ -20,9 +19,6 @@ class V2::TokensController < ApplicationController
         # base64 encode
             # FIXME: これpng固定だけど...
         base64_str = "data:image/png;base64," + Base64.strict_encode64(image_binary)
-
-        # delete file
-        File.delete("#{Rails.root}/tmp/storage/images/#{ipfs_address}")
 
         response = { token_id: token_id, tx_id: tx_id, ipfs_address: ipfs_address, token_data: base64_str, created_at: created_at}
         return response
@@ -102,6 +98,12 @@ class V2::TokensController < ApplicationController
             ret = `ipfs add #{dir_path}/#{file_name}`   # ex) ret = "added <address> <filename>"
             ipfs_address = ret.split(" ")[1]
 
+            # check IPFS conflict
+            if TapTokenV2.find_by(ipfs_address: ipfs_address)
+                response_conflict("Token create", "IPFS address conflicts. ADDRESS:#{ipfs_address}")
+                return
+            end
+
             # pin
             system("ipfs pin add #{ipfs_address}")
 
@@ -123,7 +125,7 @@ class V2::TokensController < ApplicationController
             generate
 
             # save to db
-            tap_token = TapTokenV2.create(token_id: token_id, tx_id: tx_id)
+            tap_token = TapTokenV2.create(token_id: token_id, tx_id: tx_id, ipfs_address: ipfs_address)
             tap_token.save
 
             # response
