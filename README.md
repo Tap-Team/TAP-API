@@ -8,7 +8,7 @@
 
 ## API Document
 
-See http://tap-api.shmn7iii.net/2
+See http://tap-api.shmn7iii.net/v2
 
 ## How to Build
 
