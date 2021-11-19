@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'https://tap-f4f38--pr11-develop-tu0tha9l.web.app', 'https://tap-f4f38--pr12-test-ontxjwaf.web.app', /\Ahttps:\/\/.*.shmn7iii.net\z/
+    origins 'https://tap-f4f38.web.app/', /\Ahttps:\/\/.*.shmn7iii.net\z/
 
     resource '*',
       headers: :any,
