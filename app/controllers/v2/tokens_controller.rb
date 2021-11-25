@@ -61,7 +61,7 @@ class V2::TokensController < ApplicationController
         uid = params[:uid]
         data = params[:token_data]    # base64 image
 
-        unless TapUser.find_by(uid:uid)
+        unless TapUserV2.find_by(uid:uid)
             response_bad_request("uid: #{uid} - not found.")
             return
         end
