@@ -9,3 +9,4 @@ vendor/* linguist-vendored
 
 # index.htmlはおまけなのでドキュメント扱いしましょう。
 public/index.html linguist-documentation
+public/v2/index.html linguist-documentation
