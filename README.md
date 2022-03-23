@@ -5,26 +5,31 @@
 > Tap! is a service that makes publishing NFTs easier, more convenient, and more understandable, with the goal of lowering the barriers to NFTs, making them more accessible, and promoting their use in the general public, thereby further developing the NFT industry.
 >
 > This service was created within the "Challecara", and its actual use is yet to be determined. Also, we do not guarantee the tokens. For more information, please refer to the Terms of Use and Privacy Policy. -  Tap! Team.
->
-> 
->
+
+
+
 > **2021/12/11**
 >
-> 九州アプリチャレンジキャラバン2021において
+> 九州アプリチャレンジキャラバン2021において  
+> ・優秀賞  
+> ・NECソリューションイノベータ賞  
+> を受賞しました。  
+> |優秀賞|NECソリューションイノベータ賞|
+> |---|---|
+> |![優秀賞](https://pbs.twimg.com/media/FGUFJWoUYAEa1Cv?format=jpg) | ![NECソリューションイノベータ賞](https://pbs.twimg.com/media/FGUFJWnVQAAnXIG?format=jpg)|
+
+
+> **2021/1/21**
 >
-> ・優秀賞
->
-> ・NECソリューションイノベータ賞
->
-> を受賞しました。
->
-> ![優秀賞](https://pbs.twimg.com/media/FGUFJWoUYAEa1Cv?format=jpg&name=large)
->
-> ![NECソリューションイノベータ賞](https://pbs.twimg.com/media/FGUFJWnVQAAnXIG?format=jpg&name=large)
+> 第14回 フクオカRuby大賞にて、学生賞（マネーフォワード賞）を受賞しました。
+> |学生賞（マネーフォワード賞）|賞状|
+> |---|---|
+> |![学生賞（マネーフォワード賞）](https://storage.googleapis.com/studio-design-asset-files/projects/XKOk5dMea4/s-1880x590_v-frms_webp_2d8d2641-e479-441a-a7b6-f1cefc551b71_middle.png)|![賞状](https://pbs.twimg.com/media/FOH2QZWaUAA2xzr?format=jpg)|
 
 ## API Document
 
-See http://tap-api.shmn7iii.net/v2
+See ~http://tap-api.shmn7iii.net/v2~  
+＊チャレキャラでのさくらのクラウド無償提供終了に伴い閉鎖
 
 v1 is deprecated. Use v2. With v2, the file storaging system has changed from Firebase to IPFS, allowing you to issue full-on-chain NFTs.
 
